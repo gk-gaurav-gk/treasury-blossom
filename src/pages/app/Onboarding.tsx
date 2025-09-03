@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +46,7 @@ interface RoleAssignment {
 const Onboarding = () => {
   console.log('Onboarding: Component rendered');
   
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -239,10 +241,16 @@ const Onboarding = () => {
 
       setIsSubmitting(false);
       
-      console.log('Onboarding: Redirecting to dashboard');
-      // Redirect to dashboard after timeout
+      console.log('Onboarding: Redirecting to dashboard with React Router');
+      // Navigate to dashboard using React Router
       setTimeout(() => {
-        window.location.href = '/app/dashboard';
+        try {
+          navigate('/app/dashboard', { replace: true });
+          console.log('Onboarding: Navigation to dashboard completed');
+        } catch (error) {
+          console.error('Onboarding: Navigation failed, using fallback:', error);
+          window.location.href = '/app/dashboard';
+        }
       }, 1000);
     }, 2000);
   };
