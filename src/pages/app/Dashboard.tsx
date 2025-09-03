@@ -8,11 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, Wallet, FileText, Calendar, Plus, ArrowUpDown, Clock } from "lucide-react";
+import { useSettlementEngine } from "@/hooks/useSettlementEngine";
 
 const Dashboard = () => {
   const session = JSON.parse(sessionStorage.getItem('auth_session_v1') || '{}');
   const entityData = JSON.parse(localStorage.getItem('entities_v1') || '[]')[0];
   const { toast } = useToast();
+  const { runSettlementEngine } = useSettlementEngine();
 
   // Funding modal state
   const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
@@ -40,6 +42,25 @@ const Dashboard = () => {
     loadUpcomingMaturities();
   }, []);
 
+  // Reload data when localStorage changes (for settlement engine updates)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      loadTreasuryData();
+      loadRecentActivity();
+      loadUpcomingMaturities();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for custom events from settlement engine
+    window.addEventListener('treasuryDataUpdate', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('treasuryDataUpdate', handleStorageChange);
+    };
+  }, []);
+
   const loadTreasuryData = () => {
     const ledger = JSON.parse(localStorage.getItem('ledger_v1') || '[]');
     const entityId = session.entityId || 'urban-threads';
@@ -47,23 +68,41 @@ const Dashboard = () => {
     // Filter ledger entries for current entity
     const entityLedger = ledger.filter((entry: any) => entry.entityId === entityId);
     
-    // Calculate balances
-    const available = entityLedger
+    // Calculate Available balance (Credits minus Debits that are not invested or in settlement)
+    const availableCredits = entityLedger
       .filter((entry: any) => entry.type === 'CREDIT' && entry.status === 'Credited')
-      .reduce((sum: number, entry: any) => sum + entry.amount, 0) -
-      entityLedger
-      .filter((entry: any) => entry.type === 'DEBIT' && entry.status === 'Debited')
+      .reduce((sum: number, entry: any) => sum + entry.amount, 0);
+    
+    const availableDebits = entityLedger
+      .filter((entry: any) => entry.type === 'DEBIT' && ['Debited', 'In-Settlement', 'Invested', 'Matured'].includes(entry.status))
       .reduce((sum: number, entry: any) => sum + entry.amount, 0);
 
-    // For now, mock in-settlement and invested values
-    const inSettlement = 0; // TODO: Calculate from pending orders
-    const invested = 0; // TODO: Calculate from active investments
+    // Calculate In-Settlement balance
+    const inSettlement = entityLedger
+      .filter((entry: any) => entry.type === 'DEBIT' && entry.status === 'In-Settlement')
+      .reduce((sum: number, entry: any) => sum + entry.amount, 0);
+
+    // Calculate Invested balance
+    const invested = entityLedger
+      .filter((entry: any) => entry.type === 'DEBIT' && entry.status === 'Invested')
+      .reduce((sum: number, entry: any) => sum + entry.amount, 0);
+
+    // Count upcoming maturities
+    const portfolio = JSON.parse(localStorage.getItem('portfolio_v1') || '[]');
+    const entityPortfolio = portfolio.filter((holding: any) => holding.entityId === entityId);
+    const today = new Date();
+    const next30Days = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    
+    const upcomingMaturitiesCount = entityPortfolio.filter((holding: any) => {
+      const maturityDate = new Date(holding.maturityDate);
+      return maturityDate >= today && maturityDate <= next30Days;
+    }).length;
 
     setTreasuryData({
-      available: Math.max(0, available),
+      available: Math.max(0, availableCredits - availableDebits),
       inSettlement,
       invested,
-      upcomingMaturities: 0 // TODO: Count upcoming maturities
+      upcomingMaturities: upcomingMaturitiesCount
     });
   };
 
@@ -80,12 +119,27 @@ const Dashboard = () => {
   };
 
   const loadUpcomingMaturities = () => {
-    // Mock data for upcoming maturities
-    const today = new Date();
+    const portfolio = JSON.parse(localStorage.getItem('portfolio_v1') || '[]');
+    const entityId = session.entityId || 'urban-threads';
+    const clock = JSON.parse(localStorage.getItem('clock_v1') || 'null');
+    const today = clock ? new Date(clock.currentDate) : new Date();
     const next30Days = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
     
-    // TODO: Load from actual portfolio data
-    setUpcomingMaturities([]);
+    const entityMaturities = portfolio
+      .filter((holding: any) => {
+        if (holding.entityId !== entityId) return false;
+        const maturityDate = new Date(holding.maturityDate);
+        return maturityDate >= today && maturityDate <= next30Days;
+      })
+      .map((holding: any) => ({
+        instrument: holding.instrumentName,
+        amount: holding.principal,
+        yield: holding.yield,
+        maturityDate: holding.maturityDate
+      }))
+      .sort((a: any, b: any) => new Date(a.maturityDate).getTime() - new Date(b.maturityDate).getTime());
+    
+    setUpcomingMaturities(entityMaturities);
   };
 
   const createAuditEntry = (action: string, details: any) => {
@@ -140,9 +194,10 @@ const Dashboard = () => {
       reference: fundingData.reference
     });
 
-    // Refresh treasury data
+    // Refresh treasury data and run settlement engine
     loadTreasuryData();
     loadRecentActivity();
+    runSettlementEngine();
 
     // Reset form and close modal
     setFundingData({ amount: '', reference: '', method: 'UPI' });

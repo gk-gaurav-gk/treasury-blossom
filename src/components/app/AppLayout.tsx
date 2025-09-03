@@ -39,9 +39,12 @@ import {
   Settings,
   LogOut,
   ChevronDown,
-  Menu
+  Menu,
+  Calendar,
+  FastForward
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
+import { useSettlementEngine } from "@/hooks/useSettlementEngine";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -101,6 +104,21 @@ const AppHeader = () => {
   const session = JSON.parse(sessionStorage.getItem('auth_session_v1') || '{}');
   const entities = JSON.parse(localStorage.getItem('entities_v1') || '[]');
   const [selectedEntity, setSelectedEntity] = useState(entities[0]?.id || 'urban-threads');
+  const { getCurrentDate, advanceDay } = useSettlementEngine();
+  const [currentDate, setCurrentDate] = useState(getCurrentDate());
+
+  // Update current date when clock changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDate(getCurrentDate());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleAdvanceDay = () => {
+    const newDate = advanceDay();
+    setCurrentDate(newDate);
+  };
 
   const handleLogout = () => {
     sessionStorage.removeItem('auth_session_v1');
@@ -141,6 +159,26 @@ const AppHeader = () => {
       </div>
 
       <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 px-3 py-2 bg-surface border border-border rounded-lg">
+          <Calendar className="w-4 h-4 text-muted" />
+          <span className="text-sm font-medium text-text">
+            {currentDate.toLocaleDateString('en-IN', { 
+              day: '2-digit', 
+              month: 'short', 
+              year: 'numeric' 
+            })}
+          </span>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleAdvanceDay}
+            className="ml-2 h-6 px-2 text-xs"
+          >
+            <FastForward className="w-3 h-3 mr-1" />
+            +1 Day
+          </Button>
+        </div>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 h-auto p-2">

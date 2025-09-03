@@ -4,9 +4,11 @@ import { Card } from "@/components/Card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PieChart, TrendingUp, Calendar, FileText } from "lucide-react";
+import { useSettlementEngine } from "@/hooks/useSettlementEngine";
 
 const Portfolio = () => {
   const session = JSON.parse(sessionStorage.getItem('auth_session_v1') || '{}');
+  const { getCurrentDate } = useSettlementEngine();
   const [holdings, setHoldings] = useState<any[]>([]);
   const [totalInvested, setTotalInvested] = useState(0);
   const [weightedYield, setWeightedYield] = useState(0);
@@ -53,7 +55,7 @@ const Portfolio = () => {
   };
 
   const getDaysToMaturity = (maturityDate: string) => {
-    const today = new Date();
+    const today = getCurrentDate(); // Use simulated time
     const maturity = new Date(maturityDate);
     const diffTime = maturity.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

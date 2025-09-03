@@ -9,10 +9,12 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle, XCircle, Eye, Clock, AlertCircle } from "lucide-react";
+import { useSettlementEngine } from "@/hooks/useSettlementEngine";
 
 const Approvals = () => {
   const session = JSON.parse(sessionStorage.getItem('auth_session_v1') || '{}');
   const { toast } = useToast();
+  const { runSettlementEngine } = useSettlementEngine();
   
   const [pendingOrders, setPendingOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -113,6 +115,9 @@ const Approvals = () => {
       title: "Order Approved",
       description: `Order ${selectedOrder.id} has been approved and funds moved to settlement`
     });
+
+    // Run settlement engine after approval
+    runSettlementEngine();
 
     setIsDetailOpen(false);
     setSelectedOrder(null);

@@ -5,10 +5,12 @@ import { Card } from "@/components/Card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 import { FileText, Download, Filter, Eye } from "lucide-react";
 
 const Orders = () => {
   const session = JSON.parse(sessionStorage.getItem('auth_session_v1') || '{}');
+  const { toast } = useToast();
   const [orders, setOrders] = useState<any[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -150,6 +152,20 @@ const Orders = () => {
                 <Button variant="outline" onClick={exportCSV} disabled={filteredOrders.length === 0}>
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => {
+                    const { seedDemoData } = require('@/utils/demoData');
+                    const result = seedDemoData();
+                    toast({
+                      title: "Demo Data Seeded",
+                      description: result.message
+                    });
+                    window.location.reload();
+                  }}
+                >
+                  Seed Demo Data
                 </Button>
               </div>
             </div>

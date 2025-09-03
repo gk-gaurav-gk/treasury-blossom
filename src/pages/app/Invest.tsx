@@ -10,10 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Filter, ShoppingCart, X } from "lucide-react";
 import { instruments } from "@/data/instruments";
+import { useSettlementEngine } from "@/hooks/useSettlementEngine";
 
 const Invest = () => {
   const session = JSON.parse(sessionStorage.getItem('auth_session_v1') || '{}');
   const { toast } = useToast();
+  const { runSettlementEngine } = useSettlementEngine();
   
   const [filters, setFilters] = useState({
     tenor: [] as string[],
@@ -229,6 +231,9 @@ const Invest = () => {
       title: "Order Created",
       description: `Order ${orderId} for ${selectedInstrument.name} ${newOrder.status === 'Pending Approval' ? 'sent for approval' : 'submitted successfully'}`
     });
+    
+    // Run settlement engine after order creation
+    runSettlementEngine();
     
     setIsOrderTicketOpen(false);
     setSelectedInstrument(null);
