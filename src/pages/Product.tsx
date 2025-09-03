@@ -11,8 +11,6 @@ import { FAQSection } from "@/components/product/FAQSection";
 import { BottomCTA } from "@/components/product/BottomCTA";
 
 const Product = () => {
-  console.log("Product component rendering...");
-  
   return (
     <main className="min-h-screen pt-24">
       <ProductHero />

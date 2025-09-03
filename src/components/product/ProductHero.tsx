@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
 
 export const ProductHero = () => {
-  console.log("ProductHero rendering...");
-  
   return (
     <section className="py-16 bg-bg">
       <div className="container mx-auto px-6 max-w-screen-xl">
