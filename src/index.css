@@ -126,6 +126,48 @@ All colors MUST be HSL.
   
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm 14mm 18mm;
+  }
+
+  .online-only {
+    display: none !important;
+  }
+
+  header, nav, .cookie-banner, .disclaimer-bar {
+    display: none !important;
+  }
+
+  .print-document {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: black;
+  }
+
+  .watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 72pt;
+    color: rgba(0, 0, 0, 0.05);
+    z-index: -1000;
+    white-space: nowrap;
+  }
+
+  h1, h2, h3 {
+    page-break-inside: avoid;
+    page-break-after: avoid;
+  }
+
+  .print-footer::after {
+    content: counter(page);
+  }
+
+  body {
+    counter-reset: page;
   }
 }
 
