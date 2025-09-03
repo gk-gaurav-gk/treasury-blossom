@@ -1,11 +1,175 @@
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Wallet, FileText, Settings } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { TrendingUp, Wallet, FileText, Calendar, Plus, ArrowUpDown, Clock } from "lucide-react";
 
 const Dashboard = () => {
   const session = JSON.parse(sessionStorage.getItem('auth_session_v1') || '{}');
   const entityData = JSON.parse(localStorage.getItem('entities_v1') || '[]')[0];
+  const { toast } = useToast();
+
+  // Funding modal state
+  const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
+  const [fundingData, setFundingData] = useState({
+    amount: '',
+    reference: '',
+    method: 'UPI'
+  });
+
+  // Treasury data state
+  const [treasuryData, setTreasuryData] = useState({
+    available: 0,
+    inSettlement: 0,
+    invested: 0,
+    upcomingMaturities: 0
+  });
+
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [upcomingMaturities, setUpcomingMaturities] = useState<any[]>([]);
+
+  // Load treasury data
+  useEffect(() => {
+    loadTreasuryData();
+    loadRecentActivity();
+    loadUpcomingMaturities();
+  }, []);
+
+  const loadTreasuryData = () => {
+    const ledger = JSON.parse(localStorage.getItem('ledger_v1') || '[]');
+    const entityId = session.entityId || 'urban-threads';
+    
+    // Filter ledger entries for current entity
+    const entityLedger = ledger.filter((entry: any) => entry.entityId === entityId);
+    
+    // Calculate balances
+    const available = entityLedger
+      .filter((entry: any) => entry.type === 'CREDIT' && entry.status === 'Credited')
+      .reduce((sum: number, entry: any) => sum + entry.amount, 0) -
+      entityLedger
+      .filter((entry: any) => entry.type === 'DEBIT' && entry.status === 'Debited')
+      .reduce((sum: number, entry: any) => sum + entry.amount, 0);
+
+    // For now, mock in-settlement and invested values
+    const inSettlement = 0; // TODO: Calculate from pending orders
+    const invested = 0; // TODO: Calculate from active investments
+
+    setTreasuryData({
+      available: Math.max(0, available),
+      inSettlement,
+      invested,
+      upcomingMaturities: 0 // TODO: Count upcoming maturities
+    });
+  };
+
+  const loadRecentActivity = () => {
+    const ledger = JSON.parse(localStorage.getItem('ledger_v1') || '[]');
+    const entityId = session.entityId || 'urban-threads';
+    
+    const entityLedger = ledger
+      .filter((entry: any) => entry.entityId === entityId)
+      .sort((a: any, b: any) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
+      .slice(0, 5);
+    
+    setRecentActivity(entityLedger);
+  };
+
+  const loadUpcomingMaturities = () => {
+    // Mock data for upcoming maturities
+    const today = new Date();
+    const next30Days = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    
+    // TODO: Load from actual portfolio data
+    setUpcomingMaturities([]);
+  };
+
+  const createAuditEntry = (action: string, details: any) => {
+    const audit = JSON.parse(localStorage.getItem('audit_v1') || '[]');
+    audit.push({
+      id: Date.now().toString(),
+      entityId: session.entityId || 'urban-threads',
+      actor: session.email,
+      action,
+      details,
+      ts: new Date().toISOString()
+    });
+    localStorage.setItem('audit_v1', JSON.stringify(audit));
+  };
+
+  const handleAddFunds = () => {
+    if (!fundingData.amount || parseFloat(fundingData.amount) <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid amount",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const amount = parseFloat(fundingData.amount);
+    const utr = 'UTR' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    
+    // Create ledger entry
+    const ledger = JSON.parse(localStorage.getItem('ledger_v1') || '[]');
+    const newEntry = {
+      id: Date.now().toString(),
+      entityId: session.entityId || 'urban-threads',
+      type: 'CREDIT',
+      method: fundingData.method,
+      amount: amount,
+      utr: utr,
+      reference: fundingData.reference || 'Fund addition',
+      ts: new Date().toISOString(),
+      status: 'Credited',
+      matchedOrder: null
+    };
+    
+    ledger.push(newEntry);
+    localStorage.setItem('ledger_v1', JSON.stringify(ledger));
+
+    // Create audit entry
+    createAuditEntry('FUNDS_ADDED', {
+      amount,
+      method: fundingData.method,
+      utr,
+      reference: fundingData.reference
+    });
+
+    // Refresh treasury data
+    loadTreasuryData();
+    loadRecentActivity();
+
+    // Reset form and close modal
+    setFundingData({ amount: '', reference: '', method: 'UPI' });
+    setIsFundingModalOpen(false);
+
+    toast({
+      title: "Funds Added",
+      description: `₹${amount.toLocaleString('en-IN')} credited successfully. UTR: ${utr}`
+    });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
 
   return (
     <>
@@ -18,85 +182,172 @@ const Dashboard = () => {
         <div className="container mx-auto px-6 py-8 max-w-6xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-text mb-2 font-display">
-              Welcome, {session.name}
+              Treasury Dashboard
             </h1>
             <p className="text-muted">
-              {entityData?.legalName || 'Your Entity'} • Role: {session.role}
+              {entityData?.legalName || 'Your Entity'} • {session.name} • {session.role}
             </p>
           </div>
 
-          {/* Quick Stats */}
+          {/* Treasury Overview Cards */}
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total AUM</CardTitle>
-                <Wallet className="h-4 w-4 text-muted" />
+                <CardTitle className="text-sm font-medium">Available Balance</CardTitle>
+                <Wallet className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹0</div>
-                <p className="text-xs text-muted">No investments yet</p>
+                <div className="text-2xl font-bold text-primary">
+                  {formatCurrency(treasuryData.available)}
+                </div>
+                <p className="text-xs text-muted">Ready to invest</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Orders</CardTitle>
-                <FileText className="h-4 w-4 text-muted" />
+                <CardTitle className="text-sm font-medium">In Settlement</CardTitle>
+                <Clock className="h-4 w-4 text-orange-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">0</div>
-                <p className="text-xs text-muted">Start investing</p>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(treasuryData.inSettlement)}
+                </div>
+                <p className="text-xs text-muted">Pending orders</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Yield</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted" />
+                <CardTitle className="text-sm font-medium">Invested</CardTitle>
+                <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">-</div>
-                <p className="text-xs text-muted">No data</p>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(treasuryData.invested)}
+                </div>
+                <p className="text-xs text-muted">Active portfolio</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Maturity Alert</CardTitle>
-                <Settings className="h-4 w-4 text-muted" />
+                <CardTitle className="text-sm font-medium">Maturities (30d)</CardTitle>
+                <Calendar className="h-4 w-4 text-muted" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">0</div>
-                <p className="text-xs text-muted">No upcoming</p>
+                <div className="text-2xl font-bold">{treasuryData.upcomingMaturities}</div>
+                <p className="text-xs text-muted">Upcoming</p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Getting Started */}
-          <div className="grid lg:grid-cols-2 gap-8">
+          {/* Action Cards and Recent Activity */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-8">
+            {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  Quick Actions
+                  <Dialog open={isFundingModalOpen} onOpenChange={setIsFundingModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="default" size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Funds
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Add Funds to Escrow</DialogTitle>
+                        <DialogDescription>
+                          Transfer funds to your treasury escrow account
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="amount">Amount (₹) *</Label>
+                          <Input
+                            id="amount"
+                            type="number"
+                            placeholder="100000"
+                            value={fundingData.amount}
+                            onChange={(e) => setFundingData(prev => ({ ...prev, amount: e.target.value }))}
+                            min="1"
+                            step="1"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="reference">Reference</Label>
+                          <Input
+                            id="reference"
+                            placeholder="Working capital, bonus funds, etc."
+                            value={fundingData.reference}
+                            onChange={(e) => setFundingData(prev => ({ ...prev, reference: e.target.value }))}
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="method">Transfer Method</Label>
+                          <Select 
+                            value={fundingData.method} 
+                            onValueChange={(value) => setFundingData(prev => ({ ...prev, method: value }))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="UPI">UPI</SelectItem>
+                              <SelectItem value="RTGS">RTGS</SelectItem>
+                              <SelectItem value="NEFT">NEFT</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="flex gap-3 pt-4">
+                          <Button 
+                            variant="outline" 
+                            className="flex-1"
+                            onClick={() => setIsFundingModalOpen(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            className="flex-1"
+                            onClick={handleAddFunds}
+                          >
+                            Add Funds
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </CardTitle>
                 <CardDescription>
-                  Start managing your treasury investments
+                  Manage your treasury investments
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="default" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" disabled>
                   <Wallet className="w-4 h-4 mr-2" />
                   Create Investment Order
+                  <span className="ml-auto text-xs text-muted">(Coming Soon)</span>
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" disabled>
                   <FileText className="w-4 h-4 mr-2" />
                   View Available Instruments
+                  <span className="ml-auto text-xs text-muted">(Coming Soon)</span>
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Portfolio Analytics
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <a href="/app/ledger">
+                    <ArrowUpDown className="w-4 h-4 mr-2" />
+                    View Ledger
+                  </a>
                 </Button>
               </CardContent>
             </Card>
 
+            {/* Recent Activity */}
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
@@ -105,40 +356,71 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted">
-                  <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No activity yet</p>
-                  <p className="text-sm">Start by creating your first investment order</p>
-                </div>
+                {recentActivity.length > 0 ? (
+                  <div className="space-y-3">
+                    {recentActivity.map((activity) => (
+                      <div key={activity.id} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            activity.type === 'CREDIT' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                          }`}>
+                            {activity.type === 'CREDIT' ? '+' : '-'}
+                          </div>
+                          <div>
+                            <div className="font-medium text-sm">
+                              {activity.type === 'CREDIT' ? 'Funds Added' : 'Investment'}
+                            </div>
+                            <div className="text-xs text-muted">
+                              {formatDate(activity.ts)} • {activity.method}
+                            </div>
+                          </div>
+                        </div>
+                        <div className={`font-medium ${
+                          activity.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {activity.type === 'CREDIT' ? '+' : '-'}{formatCurrency(activity.amount)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted">
+                    <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No activity yet</p>
+                    <p className="text-sm">Start by adding funds to your escrow</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Entity Info */}
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Entity Information</CardTitle>
-              <CardDescription>
-                Your registered entity details
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6 text-sm">
-                <div>
-                  <strong>Legal Name:</strong> {entityData?.legalName || 'Not available'}
+          {/* Upcoming Maturities */}
+          {upcomingMaturities.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Upcoming Maturities (Next 30 Days)</CardTitle>
+                <CardDescription>
+                  Investments maturing soon
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {upcomingMaturities.map((maturity, index) => (
+                    <div key={index} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                      <div>
+                        <div className="font-medium">{maturity.instrument}</div>
+                        <div className="text-sm text-muted">Maturity: {formatDate(maturity.maturityDate)}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-medium">{formatCurrency(maturity.amount)}</div>
+                        <div className="text-sm text-muted">{maturity.yield}% yield</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <strong>CIN:</strong> {entityData?.cin || 'Not available'}
-                </div>
-                <div>
-                  <strong>PAN:</strong> {entityData?.pan || 'Not available'}
-                </div>
-                <div>
-                  <strong>GSTIN:</strong> {entityData?.gstin || 'Not available'}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </>

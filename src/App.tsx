@@ -11,6 +11,7 @@ import { AppLayout } from "@/components/app/AppLayout";
 import Index from "./pages/Index";
 import Onboarding from "./pages/app/Onboarding";
 import Dashboard from "./pages/app/Dashboard";
+import Ledger from "./pages/app/Ledger";
 import Product from "./pages/Product";
 import Instruments from "./pages/Instruments";
 import InstrumentDetail from "./pages/InstrumentDetail";
@@ -77,6 +78,14 @@ const AppContent = () => {
             <RouteGuard>
               <AppLayout>
                 <Dashboard />
+              </AppLayout>
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/ledger" element={
+            <RouteGuard>
+              <AppLayout>
+                <Ledger />
               </AppLayout>
             </RouteGuard>
           } />
