@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface RouteGuardProps {
   children: React.ReactNode;
@@ -82,13 +83,48 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
     }
   }, [location.pathname]);
 
+  // Quick access function for testing
+  const bypassToApprovedKYC = () => {
+    const entityId = 'urban-threads';
+    const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
+    kycData[entityId] = {
+      status: 'Approved',
+      entityData: { legalName: 'Urban Threads Pvt Ltd' },
+      approvedAt: new Date().toISOString()
+    };
+    localStorage.setItem('kyc_v1', JSON.stringify(kycData));
+    
+    // Set auth session if needed
+    if (!sessionStorage.getItem('auth_session_v1')) {
+      sessionStorage.setItem('auth_session_v1', JSON.stringify({
+        userId: 'user1',
+        email: 'cfo@demo.in',
+        entityId: 'urban-threads'
+      }));
+    }
+    
+    window.location.reload();
+  };
+
   if (isLoading) {
     console.log('RouteGuard: Showing loading screen');
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted">Loading...</p>
+          
+          {/* Quick access for testing */}
+          <div className="mt-8 p-4 border border-border rounded-lg bg-card">
+            <p className="text-sm text-muted mb-2">Quick Access (Testing)</p>
+            <Button 
+              onClick={bypassToApprovedKYC}
+              variant="outline"
+              size="sm"
+            >
+              Go to Dashboard with Approved KYC
+            </Button>
+          </div>
         </div>
       </div>
     );

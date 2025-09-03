@@ -187,72 +187,52 @@ const Onboarding = () => {
     console.log('Onboarding: Starting e-sign submission');
     setIsSubmitting(true);
 
-    // Save entity data
-    const entityId = "urban-threads";
-    const entities = JSON.parse(localStorage.getItem('entities_v1') || '[]');
-    const updatedEntities = entities.filter((e: any) => e.id !== entityId);
-    updatedEntities.push({
-      id: entityId,
-      ...entityData,
-      createdAt: new Date().toISOString()
-    });
-    localStorage.setItem('entities_v1', JSON.stringify(updatedEntities));
+    try {
+      // Save entity data
+      const entityId = "urban-threads";
+      const entities = JSON.parse(localStorage.getItem('entities_v1') || '[]');
+      const updatedEntities = entities.filter((e: any) => e.id !== entityId);
+      updatedEntities.push({
+        id: entityId,
+        ...entityData,
+        createdAt: new Date().toISOString()
+      });
+      localStorage.setItem('entities_v1', JSON.stringify(updatedEntities));
 
-    // Save KYC data with Submitted status
-    const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
-    kycData[entityId] = {
-      status: 'Submitted',
-      entityData,
-      documents: Object.keys(documents).filter(key => documents[key as keyof DocumentData] !== null),
-      ubos: ubos.filter(ubo => ubo.name && ubo.panLast4),
-      roleAssignments,
-      submittedAt: new Date().toISOString()
-    };
-    localStorage.setItem('kyc_v1', JSON.stringify(kycData));
-
-    console.log('Onboarding: KYC data saved as Submitted');
-
-    toast({
-      title: "KYC Submitted",
-      description: "Your application is being reviewed..."
-    });
-
-    // Simulate approval after 2 seconds
-    setTimeout(() => {
-      console.log('Onboarding: Starting approval process');
-      
-      // Re-fetch and update KYC data to ensure we have the latest
-      const currentKycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
-      currentKycData[entityId] = {
-        ...currentKycData[entityId],
+      // Save KYC data directly as Approved (simplified flow)
+      const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
+      kycData[entityId] = {
         status: 'Approved',
+        entityData,
+        documents: Object.keys(documents).filter(key => documents[key as keyof DocumentData] !== null),
+        ubos: ubos.filter(ubo => ubo.name && ubo.panLast4),
+        roleAssignments,
+        submittedAt: new Date().toISOString(),
         approvedAt: new Date().toISOString()
       };
-      localStorage.setItem('kyc_v1', JSON.stringify(currentKycData));
+      localStorage.setItem('kyc_v1', JSON.stringify(kycData));
 
-      console.log('Onboarding: KYC approved, clearing progress');
       // Clear onboarding progress
       localStorage.removeItem('onboarding_progress_v1');
+
+      console.log('Onboarding: KYC approved, navigating to dashboard');
 
       toast({
         title: "KYC Approved!",
         description: "Welcome to YourCo Treasury"
       });
 
-      setIsSubmitting(false);
+      // Direct navigation to dashboard
+      navigate('/app/dashboard', { replace: true });
       
-      console.log('Onboarding: Redirecting to dashboard with React Router');
-      // Navigate to dashboard using React Router
-      setTimeout(() => {
-        try {
-          navigate('/app/dashboard', { replace: true });
-          console.log('Onboarding: Navigation to dashboard completed');
-        } catch (error) {
-          console.error('Onboarding: Navigation failed, using fallback:', error);
-          window.location.href = '/app/dashboard';
-        }
-      }, 1000);
-    }, 2000);
+    } catch (error) {
+      console.error('Onboarding: Error during submission:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again."
+      });
+      setIsSubmitting(false);
+    }
   };
 
   const canProceed = () => {
