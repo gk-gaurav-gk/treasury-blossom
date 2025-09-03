@@ -1,13 +1,29 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { HeroSection } from "@/components/HeroSection";
+import { ProofBar } from "@/components/ProofBar";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <main className="min-h-screen">
+      <HeroSection />
+      <ProofBar />
+      
+      {/* Footer placeholder */}
+      <footer className="py-8 bg-bg border-t border-border">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-muted text-sm">
+            © {new Date().getFullYear()} YourCo Treasury. 
+            <a href="/legal" className="ml-2 hover:text-text underline">
+              Legal
+            </a>
+          </p>
+        </div>
+      </footer>
+      
+      {/* Disclaimer anchor */}
+      <div id="disclaimer" className="sr-only">
+        Disclaimer content will be added here
       </div>
-    </div>
+    </main>
   );
 };
 
