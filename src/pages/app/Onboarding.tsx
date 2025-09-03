@@ -182,6 +182,7 @@ const Onboarding = () => {
   };
 
   const handleSubmit = async () => {
+    console.log('Onboarding: Starting e-sign submission');
     setIsSubmitting(true);
 
     // Save entity data
@@ -195,17 +196,19 @@ const Onboarding = () => {
     });
     localStorage.setItem('entities_v1', JSON.stringify(updatedEntities));
 
-        // Save KYC data with Submitted status
-        const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
-        kycData[entityId] = {
-          status: 'Submitted',
-          entityData,
-          documents: Object.keys(documents).filter(key => documents[key as keyof DocumentData] !== null),
-          ubos: ubos.filter(ubo => ubo.name && ubo.panLast4),
-          roleAssignments,
-          submittedAt: new Date().toISOString()
-        };
-        localStorage.setItem('kyc_v1', JSON.stringify(kycData));
+    // Save KYC data with Submitted status
+    const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
+    kycData[entityId] = {
+      status: 'Submitted',
+      entityData,
+      documents: Object.keys(documents).filter(key => documents[key as keyof DocumentData] !== null),
+      ubos: ubos.filter(ubo => ubo.name && ubo.panLast4),
+      roleAssignments,
+      submittedAt: new Date().toISOString()
+    };
+    localStorage.setItem('kyc_v1', JSON.stringify(kycData));
+
+    console.log('Onboarding: KYC data saved as Submitted');
 
     toast({
       title: "KYC Submitted",
@@ -214,11 +217,18 @@ const Onboarding = () => {
 
     // Simulate approval after 2 seconds
     setTimeout(() => {
-      const updatedKycData = { ...kycData };
-      updatedKycData[entityId].status = 'Approved';
-      updatedKycData[entityId].approvedAt = new Date().toISOString();
-      localStorage.setItem('kyc_v1', JSON.stringify(updatedKycData));
+      console.log('Onboarding: Starting approval process');
+      
+      // Re-fetch and update KYC data to ensure we have the latest
+      const currentKycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
+      currentKycData[entityId] = {
+        ...currentKycData[entityId],
+        status: 'Approved',
+        approvedAt: new Date().toISOString()
+      };
+      localStorage.setItem('kyc_v1', JSON.stringify(currentKycData));
 
+      console.log('Onboarding: KYC approved, clearing progress');
       // Clear onboarding progress
       localStorage.removeItem('onboarding_progress_v1');
 
@@ -229,6 +239,7 @@ const Onboarding = () => {
 
       setIsSubmitting(false);
       
+      console.log('Onboarding: Redirecting to dashboard');
       // Redirect to dashboard after timeout
       setTimeout(() => {
         window.location.href = '/app/dashboard';
