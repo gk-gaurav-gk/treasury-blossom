@@ -41,9 +41,17 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
       const entityKyc = kycData[entityId];
       console.log('RouteGuard: KYC data for entity:', entityId, entityKyc);
 
-      // If on onboarding page, allow access
+      // If on onboarding page but KYC is already approved, redirect to dashboard
+      if (location.pathname === '/app/onboarding' && entityKyc && entityKyc.status === 'Approved') {
+        console.log('RouteGuard: On onboarding but KYC approved, redirecting to dashboard');
+        setRedirectTo('/app/dashboard');
+        setIsLoading(false);
+        return;
+      }
+
+      // If on onboarding page and KYC not approved, allow access
       if (location.pathname === '/app/onboarding') {
-        console.log('RouteGuard: On onboarding page, allowing access');
+        console.log('RouteGuard: On onboarding page, KYC not approved, allowing access');
         setIsLoading(false);
         return;
       }
