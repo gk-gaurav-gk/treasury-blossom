@@ -1,11 +1,15 @@
 import { HeroSection } from "@/components/HeroSection";
 import { ProofBar } from "@/components/ProofBar";
+import { HowItWorksSection } from "@/components/HowItWorksSection";
+import { InsightCards } from "@/components/InsightCards";
 
 const Index = () => {
   return (
     <main className="min-h-screen">
       <HeroSection />
       <ProofBar />
+      <HowItWorksSection />
+      <InsightCards />
       
       {/* Footer placeholder */}
       <footer className="py-8 bg-bg border-t border-border">

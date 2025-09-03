@@ -27,18 +27,36 @@ export const HeroSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="solid" size="lg">
+              <Button 
+                variant="solid" 
+                size="lg"
+                data-analytics="cta_demo"
+              >
                 Book a 20-min demo
               </Button>
-              <Button variant="outline" size="lg">
+              <Button 
+                variant="outline" 
+                size="lg"
+                data-analytics="cta_onboarding"
+              >
                 Start onboarding
               </Button>
             </div>
 
-            <div>
-              <a href="#" className="text-primary hover:text-primary-600 font-medium text-sm underline underline-offset-4">
-                Download SME Treasury Playbook (PDF)
-              </a>
+            <div className="space-y-3">
+              <div>
+                <a href="#" className="text-primary hover:text-primary-600 font-medium text-sm underline underline-offset-4">
+                  Download SME Treasury Playbook (PDF)
+                </a>
+              </div>
+              <div>
+                <a 
+                  href="#how-it-works" 
+                  className="text-muted hover:text-text font-medium text-sm underline underline-offset-4"
+                >
+                  How it works ↓
+                </a>
+              </div>
             </div>
           </div>
 
