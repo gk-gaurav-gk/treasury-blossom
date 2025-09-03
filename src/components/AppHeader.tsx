@@ -33,7 +33,7 @@ export const AppHeader = () => {
             <a href="/" className="text-text hover:text-primary transition-colors font-medium">Home</a>
             <a href="/product" className="text-muted hover:text-text transition-colors font-medium">Product</a>
             <a href="/instruments" className="text-muted hover:text-text transition-colors font-medium">Instruments</a>
-            <a href="#" className="text-muted hover:text-text transition-colors font-medium">Pricing</a>
+            <a href="/pricing" className="text-muted hover:text-text transition-colors font-medium">Pricing</a>
             <a href="/security" className="text-muted hover:text-text transition-colors font-medium">Security</a>
             <a href="/compliance" className="text-muted hover:text-text transition-colors font-medium">Compliance</a>
             <a href="#" className="text-muted hover:text-text transition-colors font-medium">Blog</a>

@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import Product from "./pages/Product";
 import Instruments from "./pages/Instruments";
 import InstrumentDetail from "./pages/InstrumentDetail";
+import Pricing from "./pages/Pricing";
+import Security from "./pages/Security";
+import Compliance from "./pages/Compliance";
 import NotFound from "./pages/NotFound";
 import { AppHeader } from "./components/AppHeader";
 import { HelmetProvider } from "react-helmet-async";
@@ -26,6 +29,9 @@ const App = () => (
             <Route path="/product" element={<Product />} />
             <Route path="/instruments" element={<Instruments />} />
             <Route path="/instruments/:slug" element={<InstrumentDetail />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/security" element={<Security />} />
+            <Route path="/compliance" element={<Compliance />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
