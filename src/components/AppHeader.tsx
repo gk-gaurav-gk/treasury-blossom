@@ -34,15 +34,16 @@ export const AppHeader = () => {
             <a href="/product" className="text-muted hover:text-text transition-colors font-medium">Product</a>
             <a href="/instruments" className="text-muted hover:text-text transition-colors font-medium">Instruments</a>
             <a href="/pricing" className="text-muted hover:text-text transition-colors font-medium">Pricing</a>
+            <a href="/resources" className="text-muted hover:text-text transition-colors font-medium">Resources</a>
+            <a href="/calculators" className="text-muted hover:text-text transition-colors font-medium">Calculators</a>
             <a href="/security" className="text-muted hover:text-text transition-colors font-medium">Security</a>
             <a href="/compliance" className="text-muted hover:text-text transition-colors font-medium">Compliance</a>
-            <a href="#" className="text-muted hover:text-text transition-colors font-medium">Blog</a>
           </nav>
 
           {/* CTAs */}
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="default">
-              Contact Us
+            <Button variant="ghost" size="default" asChild>
+              <a href="/contact">Contact Us</a>
             </Button>
             <Button variant="solid" size="default">
               Get Started
