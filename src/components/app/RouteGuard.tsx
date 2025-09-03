@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { getSession, setSession, seedUsersIfMissing, seedEntityIfMissing } from '@/utils/auth';
 
 interface RouteGuardProps {
   children: React.ReactNode;
@@ -14,65 +15,51 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
   useEffect(() => {
     console.log('RouteGuard: Current path:', location.pathname);
     
-    // Check authentication
-    const authSession = sessionStorage.getItem('auth_session_v1');
-    console.log('RouteGuard: Auth session exists:', !!authSession);
-    
-    // Special handling for onboarding - allow direct access and create demo session
-    if (!authSession && location.pathname === '/app/onboarding') {
-      console.log('RouteGuard: Direct access to onboarding, creating demo session');
-      const demoSession = {
-        userId: 'demo-user',
-        email: 'demo@treasury.com',
-        entityId: 'urban-threads'
-      };
-      sessionStorage.setItem('auth_session_v1', JSON.stringify(demoSession));
-      console.log('RouteGuard: Demo session created, allowing onboarding access');
+    // Always allow onboarding (helps direct URL access for demo)
+    if (location.pathname.startsWith('/app/onboarding')) {
+      console.log('RouteGuard: Allowing onboarding access');
+      // Auto-create demo session if none exists
+      const session = getSession();
+      if (!session) {
+        console.log('RouteGuard: Creating auto demo session for onboarding');
+        seedUsersIfMissing();
+        seedEntityIfMissing();
+        setSession({ 
+          userId: 'u2', 
+          email: 'ops@demo.in', 
+          role: 'Preparer', 
+          entityId: 'entity-001' 
+        });
+        
+        // Ensure KYC entry exists
+        const kycAll = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
+        if (!kycAll['entity-001']) {
+          kycAll['entity-001'] = { status: 'Draft', ts: Date.now() };
+          localStorage.setItem('kyc_v1', JSON.stringify(kycAll));
+        }
+      }
       setIsLoading(false);
       return;
     }
-    
-    if (!authSession) {
-      console.log('RouteGuard: No auth session, redirecting to home');
+
+    // For all other /app/* routes, require session
+    const session = getSession();
+    if (!session) {
+      console.log('RouteGuard: No session, redirecting home');
       setRedirectTo('/');
       setIsLoading(false);
       return;
     }
 
+    // Enforce KYC Approved for all other /app/* routes
     try {
-      const session = JSON.parse(authSession);
-      console.log('RouteGuard: Session data:', session);
+      const entityId = session.entityId || 'entity-001';
+      const kycAll = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
+      const kyc = kycAll[entityId];
       
-      if (!session.userId || !session.email) {
-        console.log('RouteGuard: Invalid session data, redirecting to home');
-        setRedirectTo('/');
-        setIsLoading(false);
-        return;
-      }
-
-      // Check KYC status
-      const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
-      const entityId = session.entityId || 'urban-threads';
-      const entityKyc = kycData[entityId];
-      console.log('RouteGuard: KYC data for entity:', entityId, entityKyc);
-
-      // If on onboarding page but KYC is already approved, redirect to dashboard
-      if (location.pathname === '/app/onboarding' && entityKyc && entityKyc.status === 'Approved') {
-        console.log('RouteGuard: On onboarding but KYC approved, redirecting to dashboard');
-        setRedirectTo('/app/dashboard');
-        setIsLoading(false);
-        return;
-      }
-
-      // If on onboarding page and KYC not approved, allow access
-      if (location.pathname === '/app/onboarding') {
-        console.log('RouteGuard: On onboarding page, KYC not approved, allowing access');
-        setIsLoading(false);
-        return;
-      }
-
-      // If KYC not approved and not on onboarding, redirect to onboarding
-      if (!entityKyc || entityKyc.status !== 'Approved') {
+      console.log('RouteGuard: KYC check for entity:', entityId, kyc);
+      
+      if (!kyc || kyc.status !== 'Approved') {
         console.log('RouteGuard: KYC not approved, redirecting to onboarding');
         setRedirectTo('/app/onboarding');
         setIsLoading(false);
@@ -91,8 +78,8 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
       console.log('RouteGuard: All checks passed, rendering children');
       setIsLoading(false);
     } catch (error) {
-      console.error('Error checking authentication:', error);
-      setRedirectTo('/');
+      console.error('Error checking KYC:', error);
+      setRedirectTo('/app/onboarding');
       setIsLoading(false);
     }
   }, [location.pathname]);

@@ -199,31 +199,58 @@ const Onboarding = () => {
       });
       localStorage.setItem('entities_v1', JSON.stringify(updatedEntities));
 
-      // Save KYC data directly as Approved (simplified flow)
+      // Simulate e-sign completion with proper KYC approval flow
+      console.log('Onboarding: Starting e-sign completion process');
+      
+      // First mark as submitted
       const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
       kycData[entityId] = {
-        status: 'Approved',
+        status: 'Submitted',
         entityData,
         documents: Object.keys(documents).filter(key => documents[key as keyof DocumentData] !== null),
         ubos: ubos.filter(ubo => ubo.name && ubo.panLast4),
         roleAssignments,
         submittedAt: new Date().toISOString(),
-        approvedAt: new Date().toISOString()
+        ts: Date.now()
       };
       localStorage.setItem('kyc_v1', JSON.stringify(kycData));
-
-      // Clear onboarding progress
-      localStorage.removeItem('onboarding_progress_v1');
-
-      console.log('Onboarding: KYC approved, navigating to dashboard');
-
+      console.log('Onboarding: KYC marked as Submitted');
+      
+      // Show intermediate toast
       toast({
-        title: "KYC Approved!",
-        description: "Welcome to YourCo Treasury"
+        title: "Documents Submitted",
+        description: "Processing KYC approval..."
       });
-
-      // Direct navigation to dashboard
-      navigate('/app/dashboard', { replace: true });
+      
+      // Simulate approval process after short delay
+      setTimeout(() => {
+        const kycUpdate = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
+        kycUpdate[entityId] = {
+          ...kycUpdate[entityId],
+          status: 'Approved',
+          approvedAt: new Date().toISOString(),
+          ts: Date.now()
+        };
+        localStorage.setItem('kyc_v1', JSON.stringify(kycUpdate));
+        
+        // Clear onboarding progress
+        localStorage.removeItem('onboarding_progress_v1');
+        
+        console.log('Onboarding: KYC approved, navigating to dashboard');
+        
+        toast({
+          title: "KYC Approved!",
+          description: "Welcome to YourCo Treasury"
+        });
+        
+        navigate('/app/dashboard', { replace: true });
+      }, 800);
+      
+      // Failsafe navigation
+      setTimeout(() => {
+        console.log('Onboarding: Failsafe navigation triggered');
+        navigate('/app/dashboard', { replace: true });
+      }, 5000);
       
     } catch (error) {
       console.error('Onboarding: Error during submission:', error);

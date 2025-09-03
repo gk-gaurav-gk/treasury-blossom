@@ -9,12 +9,19 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, Wallet, FileText, Calendar, Plus, ArrowUpDown, Clock } from "lucide-react";
 import { useSettlementEngine } from "@/hooks/useSettlementEngine";
+import { seedDemoIfFirstRun } from "@/utils/auth";
 
 const Dashboard = () => {
   const session = JSON.parse(sessionStorage.getItem('auth_session_v1') || '{}');
   const entityData = JSON.parse(localStorage.getItem('entities_v1') || '[]')[0];
   const { toast } = useToast();
   const { runSettlementEngine } = useSettlementEngine();
+
+  // Seed demo data on first dashboard load
+  useEffect(() => {
+    const entityId = session.entityId || 'entity-001';
+    seedDemoIfFirstRun(entityId);
+  }, [session.entityId]);
 
   // Funding modal state
   const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
