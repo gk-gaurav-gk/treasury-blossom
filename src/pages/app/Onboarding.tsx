@@ -21,17 +21,17 @@ interface EntityData {
 }
 
 interface DocumentData {
-  coi: File | null;
-  moaAoa: File | null;
-  boardResolution: File | null;
-  uboList: File | null;
+  coi: string | null; // Just store filename
+  moaAoa: string | null;
+  boardResolution: string | null;
+  uboList: string | null;
 }
 
 interface UBOData {
   id: string;
   name: string;
   panLast4: string;
-  addressProof: File | null;
+  addressProof: string | null; // Just store filename
   sanctionsStatus: 'pending' | 'clear' | 'checking';
 }
 
@@ -133,10 +133,10 @@ const Onboarding = () => {
     { number: 5, title: "e-Sign", icon: PenTool }
   ];
 
-  const handleFileUpload = (field: keyof DocumentData, file: File | null) => {
+  const handleFileUpload = (field: keyof DocumentData, fileName: string | null) => {
     setDocuments(prev => ({
       ...prev,
-      [field]: file
+      [field]: fileName
     }));
   };
 
@@ -195,17 +195,17 @@ const Onboarding = () => {
     });
     localStorage.setItem('entities_v1', JSON.stringify(updatedEntities));
 
-    // Save KYC data with Submitted status
-    const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
-    kycData[entityId] = {
-      status: 'Submitted',
-      entityData,
-      documents: Object.keys(documents).filter(key => documents[key as keyof DocumentData] !== null),
-      ubos: ubos.filter(ubo => ubo.name && ubo.panLast4),
-      roleAssignments,
-      submittedAt: new Date().toISOString()
-    };
-    localStorage.setItem('kyc_v1', JSON.stringify(kycData));
+        // Save KYC data with Submitted status
+        const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
+        kycData[entityId] = {
+          status: 'Submitted',
+          entityData,
+          documents: Object.keys(documents).filter(key => documents[key as keyof DocumentData] !== null),
+          ubos: ubos.filter(ubo => ubo.name && ubo.panLast4),
+          roleAssignments,
+          submittedAt: new Date().toISOString()
+        };
+        localStorage.setItem('kyc_v1', JSON.stringify(kycData));
 
     toast({
       title: "KYC Submitted",
@@ -397,13 +397,18 @@ const Onboarding = () => {
                         <Input
                           type="file"
                           accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => handleFileUpload(doc.key as keyof DocumentData, e.target.files?.[0] || null)}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleFileUpload(doc.key as keyof DocumentData, file.name);
+                            }
+                          }}
                           className="flex-1"
                         />
                         {documents[doc.key as keyof DocumentData] && (
                           <div className="flex items-center gap-2 text-primary">
                             <CheckCircle className="w-4 h-4" />
-                            <span className="text-sm">Uploaded</span>
+                            <span className="text-sm">{documents[doc.key as keyof DocumentData]}</span>
                           </div>
                         )}
                       </div>
@@ -447,9 +452,20 @@ const Onboarding = () => {
                         <Input
                           type="file"
                           accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => updateUBO(ubo.id, 'addressProof', e.target.files?.[0] || null)}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              updateUBO(ubo.id, 'addressProof', file.name);
+                            }
+                          }}
                           className="mt-2"
                         />
+                        {ubo.addressProof && (
+                          <div className="flex items-center gap-2 text-primary mt-2">
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="text-sm">{ubo.addressProof}</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-4">
