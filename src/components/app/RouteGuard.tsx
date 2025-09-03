@@ -18,6 +18,20 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
     const authSession = sessionStorage.getItem('auth_session_v1');
     console.log('RouteGuard: Auth session exists:', !!authSession);
     
+    // Special handling for onboarding - allow direct access and create demo session
+    if (!authSession && location.pathname === '/app/onboarding') {
+      console.log('RouteGuard: Direct access to onboarding, creating demo session');
+      const demoSession = {
+        userId: 'demo-user',
+        email: 'demo@treasury.com',
+        entityId: 'urban-threads'
+      };
+      sessionStorage.setItem('auth_session_v1', JSON.stringify(demoSession));
+      console.log('RouteGuard: Demo session created, allowing onboarding access');
+      setIsLoading(false);
+      return;
+    }
+    
     if (!authSession) {
       console.log('RouteGuard: No auth session, redirecting to home');
       setRedirectTo('/');
