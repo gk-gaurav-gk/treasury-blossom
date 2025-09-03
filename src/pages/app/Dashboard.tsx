@@ -328,15 +328,17 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start" disabled>
-                  <Wallet className="w-4 h-4 mr-2" />
-                  Create Investment Order
-                  <span className="ml-auto text-xs text-muted">(Coming Soon)</span>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <a href="/app/invest">
+                    <Wallet className="w-4 h-4 mr-2" />
+                    Browse & Invest
+                  </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start" disabled>
-                  <FileText className="w-4 h-4 mr-2" />
-                  View Available Instruments
-                  <span className="ml-auto text-xs text-muted">(Coming Soon)</span>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <a href="/app/orders">
+                    <FileText className="w-4 h-4 mr-2" />
+                    View Orders
+                  </a>
                 </Button>
                 <Button variant="outline" className="w-full justify-start" asChild>
                   <a href="/app/ledger">

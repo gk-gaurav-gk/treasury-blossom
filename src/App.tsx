@@ -12,6 +12,10 @@ import Index from "./pages/Index";
 import Onboarding from "./pages/app/Onboarding";
 import Dashboard from "./pages/app/Dashboard";
 import Ledger from "./pages/app/Ledger";
+import Invest from "./pages/app/Invest";
+import Orders from "./pages/app/Orders";
+import Approvals from "./pages/app/Approvals";
+import Portfolio from "./pages/app/Portfolio";
 import Product from "./pages/Product";
 import Instruments from "./pages/Instruments";
 import InstrumentDetail from "./pages/InstrumentDetail";
@@ -88,6 +92,38 @@ const AppContent = () => {
             <RouteGuard>
               <AppLayout>
                 <Ledger />
+              </AppLayout>
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/invest" element={
+            <RouteGuard>
+              <AppLayout>
+                <Invest />
+              </AppLayout>
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/orders" element={
+            <RouteGuard>
+              <AppLayout>
+                <Orders />
+              </AppLayout>
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/approvals" element={
+            <RouteGuard>
+              <AppLayout>
+                <Approvals />
+              </AppLayout>
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/portfolio" element={
+            <RouteGuard>
+              <AppLayout>
+                <Portfolio />
               </AppLayout>
             </RouteGuard>
           } />
