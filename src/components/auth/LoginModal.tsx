@@ -88,7 +88,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       onClose();
       
       // Redirect to app (you can customize this)
-      window.location.href = '/app/dashboard';
+      window.location.href = '/app';
     }, 1000);
   };
 
@@ -128,7 +128,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       onClose();
       
       // Redirect to app
-      window.location.href = '/app/dashboard';
+      window.location.href = '/app';
     }, 1000);
   };
 

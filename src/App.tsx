@@ -6,7 +6,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { RouteGuard } from "@/components/app/RouteGuard";
+import { AppLayout } from "@/components/app/AppLayout";
 import Index from "./pages/Index";
+import Onboarding from "./pages/app/Onboarding";
+import Dashboard from "./pages/app/Dashboard";
 import Product from "./pages/Product";
 import Instruments from "./pages/Instruments";
 import InstrumentDetail from "./pages/InstrumentDetail";
@@ -36,6 +40,16 @@ import { HelmetProvider } from "react-helmet-async";
 
 const queryClient = new QueryClient();
 
+// Placeholder component for app routes under development
+const ComingSoon = () => (
+  <div className="min-h-screen bg-bg flex items-center justify-center">
+    <div className="text-center">
+      <h2 className="text-2xl font-bold text-text mb-4">Coming Soon</h2>
+      <p className="text-muted">This feature is under development</p>
+    </div>
+  </div>
+);
+
 const AppContent = () => {
   const { isLoginModalOpen, closeLoginModal } = useAuth();
   
@@ -45,38 +59,185 @@ const AppContent = () => {
       <Sonner />
       <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
       <BrowserRouter>
-        <AppHeader />
         <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/product" element={<Product />} />
-            <Route path="/instruments" element={<Instruments />} />
-            <Route path="/instruments/:slug" element={<InstrumentDetail />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route path="/resources/:slug" element={<ResourceDetail />} />
-            <Route path="/calculators" element={<Calculators />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/security" element={<Security />} />
-            <Route path="/security/evidence-admin" element={<EvidenceAdminPage />} />
-            <Route path="/security/evidence/:slug" element={<EvidenceDetail />} />
-            <Route path="/security/evidence/print/:slug" element={<EvidencePrint />} />
-            <Route path="/compliance" element={<Compliance />} />
-            <Route path="/compliance/grievance/print/:ticketId" element={<GrievancePrint />} />
-            <Route path="/legal" element={<Legal />} />
-            <Route path="/solutions/sme-treasury" element={<SMETreasury />} />
-            <Route path="/solutions/ca-partners" element={<CAPartners />} />
-            <Route path="/partner" element={<PartnerPortal />} />
-            <Route path="/legal/print/terms" element={<PrintTerms />} />
-            <Route path="/legal/print/privacy" element={<PrintPrivacy />} />
-            <Route path="/legal/print/risk" element={<PrintRisk />} />
-            <Route path="/legal/print/cookies" element={<PrintCookies />} />
-            <Route path="/admin/resources" element={<ResourcesAdmin />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </>
-    );
+          {/* App Routes - Protected */}
+          <Route path="/app" element={
+            <RouteGuard>
+              <div />
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/onboarding" element={
+            <RouteGuard>
+              <Onboarding />
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/dashboard" element={
+            <RouteGuard>
+              <AppLayout>
+                <Dashboard />
+              </AppLayout>
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/*" element={
+            <RouteGuard>
+              <AppLayout>
+                <ComingSoon />
+              </AppLayout>
+            </RouteGuard>
+          } />
+          
+          {/* Marketing/Public Routes */}
+          <Route path="/" element={
+            <>
+              <AppHeader />
+              <Index />
+            </>
+          } />
+          
+          <Route path="/product" element={
+            <>
+              <AppHeader />
+              <Product />
+            </>
+          } />
+          
+          <Route path="/instruments" element={
+            <>
+              <AppHeader />
+              <Instruments />
+            </>
+          } />
+          
+          <Route path="/instruments/:slug" element={
+            <>
+              <AppHeader />
+              <InstrumentDetail />
+            </>
+          } />
+          
+          <Route path="/pricing" element={
+            <>
+              <AppHeader />
+              <Pricing />
+            </>
+          } />
+          
+          <Route path="/resources" element={
+            <>
+              <AppHeader />
+              <Resources />
+            </>
+          } />
+          
+          <Route path="/resources/:slug" element={
+            <>
+              <AppHeader />
+              <ResourceDetail />
+            </>
+          } />
+          
+          <Route path="/calculators" element={
+            <>
+              <AppHeader />
+              <Calculators />
+            </>
+          } />
+          
+          <Route path="/contact" element={
+            <>
+              <AppHeader />
+              <Contact />
+            </>
+          } />
+          
+          <Route path="/security" element={
+            <>
+              <AppHeader />
+              <Security />
+            </>
+          } />
+          
+          <Route path="/security/evidence-admin" element={
+            <>
+              <AppHeader />
+              <EvidenceAdminPage />
+            </>
+          } />
+          
+          <Route path="/security/evidence/:slug" element={
+            <>
+              <AppHeader />
+              <EvidenceDetail />
+            </>
+          } />
+          
+          <Route path="/security/evidence/print/:slug" element={<EvidencePrint />} />
+          
+          <Route path="/compliance" element={
+            <>
+              <AppHeader />
+              <Compliance />
+            </>
+          } />
+          
+          <Route path="/compliance/grievance/print/:ticketId" element={<GrievancePrint />} />
+          
+          <Route path="/legal" element={
+            <>
+              <AppHeader />
+              <Legal />
+            </>
+          } />
+          
+          <Route path="/solutions/sme-treasury" element={
+            <>
+              <AppHeader />
+              <SMETreasury />
+            </>
+          } />
+          
+          <Route path="/solutions/ca-partners" element={
+            <>
+              <AppHeader />
+              <CAPartners />
+            </>
+          } />
+          
+          <Route path="/partner" element={
+            <>
+              <AppHeader />
+              <PartnerPortal />
+            </>
+          } />
+          
+          {/* Print Routes (no header) */}
+          <Route path="/legal/print/terms" element={<PrintTerms />} />
+          <Route path="/legal/print/privacy" element={<PrintPrivacy />} />
+          <Route path="/legal/print/risk" element={<PrintRisk />} />
+          <Route path="/legal/print/cookies" element={<PrintCookies />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/resources" element={
+            <>
+              <AppHeader />
+              <ResourcesAdmin />
+            </>
+          } />
+          
+          {/* 404 */}
+          <Route path="*" element={
+            <>
+              <AppHeader />
+              <NotFound />
+            </>
+          } />
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
 };
 
 const App = () => (
