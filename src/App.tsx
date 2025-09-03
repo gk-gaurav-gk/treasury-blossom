@@ -3,6 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { LoginModal } from "@/components/auth/LoginModal";
+import { useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Product from "./pages/Product";
 import Instruments from "./pages/Instruments";
@@ -33,15 +36,17 @@ import { HelmetProvider } from "react-helmet-async";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <HelmetProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppHeader />
-          <Routes>
+const AppContent = () => {
+  const { isLoginModalOpen, closeLoginModal } = useAuth();
+  
+  return (
+    <>
+      <Toaster />
+      <Sonner />
+      <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
+      <BrowserRouter>
+        <AppHeader />
+        <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/product" element={<Product />} />
             <Route path="/instruments" element={<Instruments />} />
@@ -70,6 +75,17 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+      </>
+    );
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <HelmetProvider>
+      <TooltipProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </TooltipProvider>
     </HelmetProvider>
   </QueryClientProvider>

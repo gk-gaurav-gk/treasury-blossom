@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const ProductHero = () => {
+  const { openLoginModal } = useAuth();
   return (
     <section className="py-16 bg-bg">
       <div className="container mx-auto px-6 max-w-screen-xl">
@@ -38,6 +40,7 @@ export const ProductHero = () => {
               variant="outline" 
               size="lg"
               data-analytics="cta_onboarding"
+              onClick={openLoginModal}
             >
               Start onboarding
             </Button>

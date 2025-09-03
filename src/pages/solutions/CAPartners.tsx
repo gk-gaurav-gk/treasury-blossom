@@ -254,14 +254,23 @@ const CAPartners = () => {
               Ready to join our partner program?
             </h2>
             
-            <Button 
-              variant="solid" 
-              size="lg"
-              onClick={() => setShowPartnerModal(true)}
-              data-analytics="solutions_ca_cta"
-            >
-              Apply to partner program
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                variant="solid" 
+                size="lg"
+                onClick={() => setShowPartnerModal(true)}
+                data-analytics="solutions_ca_cta"
+              >
+                Apply to partner program
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                asChild
+              >
+                <a href="/partner">Partner login</a>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

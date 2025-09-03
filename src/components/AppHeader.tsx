@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 export const AppHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { openLoginModal } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,7 +47,7 @@ export const AppHeader = () => {
             <Button variant="ghost" size="default" asChild>
               <a href="/contact">Contact Us</a>
             </Button>
-            <Button variant="solid" size="default">
+            <Button variant="solid" size="default" onClick={openLoginModal}>
               Get Started
             </Button>
           </div>

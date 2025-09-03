@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { BadgePill } from "./BadgePill";
 import heroPortrait from "@/assets/hero-portrait.jpg";
 import { TrendingUp, PieChart } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const HeroSection = () => {
+  const { openLoginModal } = useAuth();
   return (
     <section className="pt-24 pb-16 bg-bg">
       <div className="container mx-auto px-6">
@@ -38,6 +40,7 @@ export const HeroSection = () => {
                 variant="outline" 
                 size="lg"
                 data-analytics="cta_onboarding"
+                onClick={openLoginModal}
               >
                 Start onboarding
               </Button>

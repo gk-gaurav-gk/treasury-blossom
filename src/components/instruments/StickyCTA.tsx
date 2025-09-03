@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 import type { Instrument } from "@/data/instruments";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface StickyCTAProps {
   instrument: Instrument;
 }
 
 export const StickyCTA = ({ instrument }: StickyCTAProps) => {
+  const { openLoginModal } = useAuth();
   return (
     <div className="lg:sticky lg:top-32">
       <div className="bg-bg rounded-card p-6 shadow-md border border-border">
@@ -31,6 +33,7 @@ export const StickyCTA = ({ instrument }: StickyCTAProps) => {
             className="w-full"
             data-analytics="instrument_cta"
             data-action="onboarding"
+            onClick={openLoginModal}
           >
             Start onboarding
           </Button>

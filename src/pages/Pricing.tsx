@@ -6,9 +6,11 @@ import { ComparisonTable } from "@/components/pricing/ComparisonTable";
 import { FeeExampleTable } from "@/components/pricing/FeeExampleTable";
 import { QuoteModal } from "@/components/pricing/QuoteModal";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Pricing = () => {
   const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const { openLoginModal } = useAuth();
 
   const faqs = [
     {
@@ -72,7 +74,7 @@ const Pricing = () => {
               transactionFee="~0.8%"
               buttonText="Get started"
               buttonVariant="outline"
-              onButtonClick={() => {}}
+              onButtonClick={openLoginModal}
               planType="starter"
             />
             
@@ -93,7 +95,7 @@ const Pricing = () => {
               buttonText="Start onboarding"
               buttonVariant="default"
               isPopular={true}
-              onButtonClick={() => {}}
+              onButtonClick={openLoginModal}
               planType="growth"
             />
             
@@ -194,6 +196,7 @@ const Pricing = () => {
                 variant="ghost" 
                 size="lg"
                 data-analytics="pricing_cta_onboarding"
+                onClick={openLoginModal}
               >
                 Start onboarding
               </Button>

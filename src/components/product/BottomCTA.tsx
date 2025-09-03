@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const BottomCTA = () => {
+  const { openLoginModal } = useAuth();
   return (
     <section className="py-16 bg-surface">
       <div className="container mx-auto px-6 max-w-screen-xl">
@@ -22,6 +24,7 @@ export const BottomCTA = () => {
                 variant="ghost" 
                 size="lg"
                 data-analytics="cta_onboarding"
+                onClick={openLoginModal}
               >
                 Start onboarding
               </Button>
