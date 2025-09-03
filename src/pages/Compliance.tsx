@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { ComplianceList } from "@/components/compliance/ComplianceList";
+import { GrievanceTabs } from "@/components/compliance/GrievanceTabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const Compliance = () => {
@@ -74,6 +75,40 @@ const Compliance = () => {
       <section className="py-16 bg-bg">
         <div className="container mx-auto px-6 max-w-screen-xl">
           <ComplianceList />
+        </div>
+      </section>
+
+      {/* Grievance Section */}
+      <section id="grievance" className="py-16 bg-surface">
+        <div className="container mx-auto px-6 max-w-screen-xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-text mb-4 font-display">
+              Grievance Redressal
+            </h2>
+            <p className="text-muted">
+              Submit a complaint and track it with your ticket ID.
+            </p>
+          </div>
+          
+          <GrievanceTabs />
+
+          {/* Footer Info */}
+          <div className="mt-12 p-6 bg-card border border-border rounded-card">
+            <div className="text-center mb-4">
+              <h3 className="font-semibold text-text mb-2">Grievance Officer</h3>
+              <p className="text-muted text-sm mb-4">
+                Email: grievance@yourco.example | Phone: +91-XXXX-XXXX-XX
+              </p>
+              <Button variant="outline" asChild>
+                <a href="https://scores.gov.in" target="_blank" rel="noopener noreferrer">
+                  File on SCORES
+                </a>
+              </Button>
+            </div>
+            <p className="text-xs text-muted text-center">
+              Local demo only; production uses a secure ticketing system.
+            </p>
+          </div>
         </div>
       </section>
 

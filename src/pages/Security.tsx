@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Shield, Lock, Server, Eye, Bug, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SecurityPillarCard } from "@/components/security/SecurityPillarCard";
+import { EvidenceLocker } from "@/components/security/EvidenceLocker";
 
 const Security = () => {
   const pillars = [
@@ -71,6 +72,22 @@ const Security = () => {
               />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Evidence Locker */}
+      <section id="evidence" className="py-16 bg-bg">
+        <div className="container mx-auto px-6 max-w-screen-xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-text mb-4 font-display">
+              Evidence Locker
+            </h2>
+            <p className="text-muted">
+              Versioned security and compliance documents. Some items may require a request.
+            </p>
+          </div>
+          
+          <EvidenceLocker />
         </div>
       </section>
 

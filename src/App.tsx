@@ -22,6 +22,11 @@ import PrintPrivacy from "./pages/legal/PrintPrivacy";
 import PrintRisk from "./pages/legal/PrintRisk";
 import PrintCookies from "./pages/legal/PrintCookies";
 import ResourcesAdmin from "./pages/admin/ResourcesAdmin";
+import EvidenceAdminPage from "./pages/security/EvidenceAdminPage";
+import EvidenceDetail from "./pages/security/EvidenceDetail";
+import EvidencePrint from "./pages/security/EvidencePrint";
+import GrievancePrint from "./pages/compliance/GrievancePrint";
+import PartnerPortal from "./pages/PartnerPortal";
 import NotFound from "./pages/NotFound";
 import { AppHeader } from "./components/AppHeader";
 import { HelmetProvider } from "react-helmet-async";
@@ -47,10 +52,15 @@ const App = () => (
             <Route path="/calculators" element={<Calculators />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/security" element={<Security />} />
+            <Route path="/security/evidence-admin" element={<EvidenceAdminPage />} />
+            <Route path="/security/evidence/:slug" element={<EvidenceDetail />} />
+            <Route path="/security/evidence/print/:slug" element={<EvidencePrint />} />
             <Route path="/compliance" element={<Compliance />} />
+            <Route path="/compliance/grievance/print/:ticketId" element={<GrievancePrint />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/solutions/sme-treasury" element={<SMETreasury />} />
             <Route path="/solutions/ca-partners" element={<CAPartners />} />
+            <Route path="/partner" element={<PartnerPortal />} />
             <Route path="/legal/print/terms" element={<PrintTerms />} />
             <Route path="/legal/print/privacy" element={<PrintPrivacy />} />
             <Route path="/legal/print/risk" element={<PrintRisk />} />
