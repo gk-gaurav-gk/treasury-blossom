@@ -11,18 +11,26 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('RouteGuard: Current path:', location.pathname);
+    
     // Check authentication
     const authSession = sessionStorage.getItem('auth_session_v1');
+    console.log('RouteGuard: Auth session exists:', !!authSession);
+    
     if (!authSession) {
-      setRedirectTo('/auth/login');
+      console.log('RouteGuard: No auth session, redirecting to home');
+      setRedirectTo('/');
       setIsLoading(false);
       return;
     }
 
     try {
       const session = JSON.parse(authSession);
+      console.log('RouteGuard: Session data:', session);
+      
       if (!session.userId || !session.email) {
-        setRedirectTo('/auth/login');
+        console.log('RouteGuard: Invalid session data, redirecting to home');
+        setRedirectTo('/');
         setIsLoading(false);
         return;
       }
@@ -31,15 +39,18 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
       const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
       const entityId = session.entityId || 'urban-threads';
       const entityKyc = kycData[entityId];
+      console.log('RouteGuard: KYC data for entity:', entityId, entityKyc);
 
       // If on onboarding page, allow access
       if (location.pathname === '/app/onboarding') {
+        console.log('RouteGuard: On onboarding page, allowing access');
         setIsLoading(false);
         return;
       }
 
       // If KYC not approved and not on onboarding, redirect to onboarding
       if (!entityKyc || entityKyc.status !== 'Approved') {
+        console.log('RouteGuard: KYC not approved, redirecting to onboarding');
         setRedirectTo('/app/onboarding');
         setIsLoading(false);
         return;
@@ -47,16 +58,18 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
 
       // If on /app root, redirect to dashboard
       if (location.pathname === '/app') {
+        console.log('RouteGuard: On app root, redirecting to dashboard');
         setRedirectTo('/app/dashboard');
         setIsLoading(false);
         return;
       }
 
       // All checks passed
+      console.log('RouteGuard: All checks passed, rendering children');
       setIsLoading(false);
     } catch (error) {
       console.error('Error checking authentication:', error);
-      setRedirectTo('/auth/login');
+      setRedirectTo('/');
       setIsLoading(false);
     }
   }, [location.pathname]);

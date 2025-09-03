@@ -87,8 +87,10 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       setIsLoading(false);
       onClose();
       
-      // Redirect to app (you can customize this)
-      window.location.href = '/app';
+      // Redirect to app using React Router
+      setTimeout(() => {
+        window.location.href = '/app';
+      }, 100);
     }, 1000);
   };
 
@@ -128,7 +130,9 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       onClose();
       
       // Redirect to app
-      window.location.href = '/app';
+      setTimeout(() => {
+        window.location.href = '/app';
+      }, 100);
     }, 1000);
   };
 
