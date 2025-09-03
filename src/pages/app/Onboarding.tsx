@@ -43,6 +43,8 @@ interface RoleAssignment {
 }
 
 const Onboarding = () => {
+  console.log('Onboarding: Component rendered');
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();

@@ -75,6 +75,7 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
   }, [location.pathname]);
 
   if (isLoading) {
+    console.log('RouteGuard: Showing loading screen');
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
         <div className="text-center">
@@ -86,8 +87,10 @@ export const RouteGuard = ({ children }: RouteGuardProps) => {
   }
 
   if (redirectTo) {
+    console.log('RouteGuard: Redirecting to:', redirectTo);
     return <Navigate to={redirectTo} replace />;
   }
 
+  console.log('RouteGuard: Rendering children');
   return <>{children}</>;
 };

@@ -54,6 +54,8 @@ const ComingSoon = () => (
 const AppContent = () => {
   const { isLoginModalOpen, closeLoginModal } = useAuth();
   
+  console.log('App: AppContent rendered');
+  
   return (
     <>
       <Toaster />
@@ -64,7 +66,7 @@ const AppContent = () => {
           {/* App Routes - Protected */}
           <Route path="/app" element={
             <RouteGuard>
-              <div />
+              <div>App Root - This should redirect</div>
             </RouteGuard>
           } />
           

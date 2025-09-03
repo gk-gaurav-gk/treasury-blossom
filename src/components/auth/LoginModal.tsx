@@ -38,60 +38,66 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       return;
     }
 
-    setIsLoading(true);
+      console.log('LoginModal: Starting login process');
+      setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const user = demoUsers[email as keyof typeof demoUsers] || {
-        name: email.split('@')[0],
-        role: "User",
-        entityId: "demo-entity"
-      };
-
-      const sessionData = {
-        userId: Math.random().toString(36).substr(2, 9),
-        email,
-        name: user.name,
-        role: user.role,
-        entityId: user.entityId,
-        loginTime: new Date().toISOString()
-      };
-
-      // Store session
-      sessionStorage.setItem('auth_session_v1', JSON.stringify(sessionData));
-      
-      if (rememberMe) {
-        localStorage.setItem('remember_user', email);
-      }
-
-      // Store demo users in localStorage
-      const existingUsers = JSON.parse(localStorage.getItem('users_v1') || '[]');
-      const updatedUsers = [...existingUsers];
-      
-      Object.entries(demoUsers).forEach(([userEmail, userData]) => {
-        if (!updatedUsers.find(u => u.email === userEmail)) {
-          updatedUsers.push({
-            email: userEmail,
-            ...userData
-          });
-        }
-      });
-      
-      localStorage.setItem('users_v1', JSON.stringify(updatedUsers));
-
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${user.name}!`
-      });
-
-      setIsLoading(false);
-      onClose();
-      
-      // Redirect to app using React Router
+      // Simulate API call
       setTimeout(() => {
+        console.log('LoginModal: Login successful, creating session');
+        const user = demoUsers[email as keyof typeof demoUsers] || {
+          name: email.split('@')[0],
+          role: "User",
+          entityId: "demo-entity"
+        };
+
+        const sessionData = {
+          userId: Math.random().toString(36).substr(2, 9),
+          email,
+          name: user.name,
+          role: user.role,
+          entityId: user.entityId,
+          loginTime: new Date().toISOString()
+        };
+
+        console.log('LoginModal: Session data created:', sessionData);
+
+        // Store session
+        sessionStorage.setItem('auth_session_v1', JSON.stringify(sessionData));
+        console.log('LoginModal: Session stored in sessionStorage');
+        
+        if (rememberMe) {
+          localStorage.setItem('remember_user', email);
+          console.log('LoginModal: Remember me enabled');
+        }
+
+        // Store demo users in localStorage
+        const existingUsers = JSON.parse(localStorage.getItem('users_v1') || '[]');
+        const updatedUsers = [...existingUsers];
+        
+        Object.entries(demoUsers).forEach(([userEmail, userData]) => {
+          if (!updatedUsers.find(u => u.email === userEmail)) {
+            updatedUsers.push({
+              email: userEmail,
+              ...userData
+            });
+          }
+        });
+        
+        localStorage.setItem('users_v1', JSON.stringify(updatedUsers));
+        console.log('LoginModal: Demo users stored');
+
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${user.name}!`
+        });
+
+        setIsLoading(false);
+        onClose();
+        
+        console.log('LoginModal: About to redirect to /app');
+        // Use React Router navigation instead of window.location
         window.location.href = '/app';
-      }, 100);
-    }, 1000);
+      }, 1000);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
