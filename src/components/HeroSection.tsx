@@ -3,12 +3,12 @@ import { BadgePill } from "./BadgePill";
 import heroPortrait from "@/assets/hero-portrait.jpg";
 import { TrendingUp, PieChart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
 export const HeroSection = () => {
-  const { openLoginModal } = useAuth();
-  return (
-    <section className="pt-24 pb-16 bg-bg">
-      <div className="container mx-auto px-6">
+  const {
+    openLoginModal
+  } = useAuth();
+  return <section className="pt-24 pb-16 bg-bg">
+      <div className="container mx-auto px-6 rounded-none">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Column - Copy & CTAs */}
           <div className="space-y-8">
@@ -22,26 +22,15 @@ export const HeroSection = () => {
                 <span className="gradient-text"> Indian SMEs.</span>
               </h1>
               
-              <p className="body text-muted max-w-lg">
-                Deploy idle cash into compliant, low-risk instruments (T-Bills, G-Secs, high-grade debt) 
-                with maker-checker controls, escrow, and one-click reports.
-              </p>
+              <p className="body text-muted max-w-lg">Deploy idle cash into compliant, low-risk instruments (T-Bills, G-Secs, high-grade debt) with maker-checker controls, escrow, and one-click reports.
+From idle to ideal: treasury for SMEs.</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                variant="solid" 
-                size="lg"
-                data-analytics="cta_demo"
-              >
+              <Button variant="solid" size="lg" data-analytics="cta_demo">
                 Book a 20-min demo
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                data-analytics="cta_onboarding"
-                onClick={openLoginModal}
-              >
+              <Button variant="outline" size="lg" data-analytics="cta_onboarding" onClick={openLoginModal}>
                 Start onboarding
               </Button>
             </div>
@@ -53,10 +42,7 @@ export const HeroSection = () => {
                 </a>
               </div>
               <div>
-                <a 
-                  href="#how-it-works" 
-                  className="text-muted hover:text-text font-medium text-sm underline underline-offset-4"
-                >
+                <a href="#how-it-works" className="text-muted hover:text-text font-medium text-sm underline underline-offset-4">
                   How it works ↓
                 </a>
               </div>
@@ -67,11 +53,7 @@ export const HeroSection = () => {
           <div className="relative">
             {/* Main Portrait Card */}
             <div className="relative z-10 bg-card rounded-card shadow-lg overflow-hidden">
-              <img 
-                src={heroPortrait} 
-                alt="Professional business executive managing treasury operations"
-                className="w-full h-80 object-cover"
-              />
+              <img src={heroPortrait} alt="Professional business executive managing treasury operations" className="w-full h-80 object-cover" />
             </div>
 
             {/* Analytics Card Overlay */}
@@ -96,6 +78,5 @@ export const HeroSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
