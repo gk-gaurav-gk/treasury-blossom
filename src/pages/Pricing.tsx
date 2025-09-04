@@ -61,8 +61,8 @@ const Pricing = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <PlanCard
               name="Starter"
-              price="₹25,000"
-              period="/year"
+              price="FREE"
+              period=""
               description="For smaller SMEs, 3 users"
               features={[
                 "Instrument shelf",
