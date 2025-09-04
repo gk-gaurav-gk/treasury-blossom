@@ -41,10 +41,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSessionState(s);
   };
 
-  if (loading) {
-    return <div style={{padding: 24}}>Loading…</div>;
-  }
-
   return (
     <AuthContext.Provider value={{
       isLoginModalOpen,
@@ -54,7 +50,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAuthSession,
       loading
     }}>
-      {children}
+      {loading ? (
+        <div style={{padding: 24}}>Loading…</div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };
