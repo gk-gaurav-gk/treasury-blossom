@@ -2,32 +2,24 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
-
 export const AppHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { openLoginModal } = useAuth();
-
+  const {
+    openLoginModal
+  } = useAuth();
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  return (
-    <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-      isScrolled ? "header-blur" : "bg-transparent"
-    )}>
+  return <header className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300", isScrolled ? "header-blur" : "bg-transparent")}>
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Brand */}
           <div className="flex items-center">
-            <h1 className="text-xl font-display font-bold text-text">
-              YourCo Treasury
-            </h1>
+            <h1 className="text-xl font-display font-bold text-text">Reserve Craft</h1>
           </div>
 
           {/* Navigation */}
@@ -53,6 +45,5 @@ export const AppHeader = () => {
           </div>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
