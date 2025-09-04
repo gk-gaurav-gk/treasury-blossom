@@ -22,8 +22,11 @@ export const HeroSection = () => {
                 <span className="gradient-text"> Indian SMEs.</span>
               </h1>
               
-              <p className="body text-muted max-w-lg">Deploy idle cash into compliant, low-risk instruments (T-Bills, G-Secs, high-grade debt) with maker-checker controls, escrow, and one-click reports.
-From idle to ideal: treasury for SMEs.</p>
+              <div className="text-xl font-semibold gradient-text mb-4">
+                From idle to ideal: treasury for SMEs.
+              </div>
+              
+              <p className="body text-muted max-w-lg">Deploy idle cash into compliant, low-risk instruments (T-Bills, G-Secs, high-grade debt) with maker-checker controls, escrow, and one-click reports.</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
