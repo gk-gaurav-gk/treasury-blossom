@@ -153,5 +153,145 @@ export const instruments: Instrument[] = [
       { q: "What makes this 'senior secured'?", a: "Priority claim on assets in case of default; backed by collateral." },
       { q: "Is early exit possible?", a: "Generally not available; designed to be held to maturity." }
     ]
+  },
+  {
+    slug: "equity-mf-large-cap",
+    name: "Equity MF – Large Cap Fund",
+    category: "Equity MF",
+    issuer: "Leading AMCs",
+    rating: "Equity",
+    tenor_days: 0,
+    tenor_label: "Open ended",
+    indicative_yield_min: 10.5,
+    indicative_yield_max: 14.8,
+    min_lot: "₹500",
+    liquidity: "T+3",
+    settlement: "T+3",
+    tax_treatment: "STCG 15% if <1 year; LTCG 10% if >₹1L and >1 year",
+    credit_risk: "Market",
+    risk_notes: "High volatility; market risk; no guaranteed returns.",
+    docs_required: ["PAN", "Entity KYC", "Board Resolution/POA", "Risk Profile Assessment"],
+    disclosures: [
+      "Equity investments are subject to market risk.",
+      "Past performance is not indicative of future results.",
+      "Returns shown are historical 3-year CAGR.",
+      "SIP and lump sum options available."
+    ],
+    faqs: [
+      { q: "What is the investment style?", a: "Invests primarily in large-cap stocks with market cap >₹20,000 crores." },
+      { q: "Is SIP available?", a: "Yes, SIP available from ₹500 per month." }
+    ]
+  },
+  {
+    slug: "equity-mf-mid-cap",
+    name: "Equity MF – Mid Cap Fund",
+    category: "Equity MF",
+    issuer: "Leading AMCs",
+    rating: "Equity",
+    tenor_days: 0,
+    tenor_label: "Open ended",
+    indicative_yield_min: 12.2,
+    indicative_yield_max: 18.5,
+    min_lot: "₹500",
+    liquidity: "T+3",
+    settlement: "T+3",
+    tax_treatment: "STCG 15% if <1 year; LTCG 10% if >₹1L and >1 year",
+    credit_risk: "Market",
+    risk_notes: "Very high volatility; higher risk-reward than large cap.",
+    docs_required: ["PAN", "Entity KYC", "Board Resolution/POA", "Risk Profile Assessment"],
+    disclosures: [
+      "Mid-cap funds carry higher risk than large-cap funds.",
+      "Suitable for investors with high risk appetite.",
+      "Returns shown are historical 3-year CAGR.",
+      "May have higher volatility during market downturns."
+    ],
+    faqs: [
+      { q: "What is mid-cap range?", a: "Invests in companies with market cap between ₹5,000-20,000 crores." },
+      { q: "Recommended holding period?", a: "Minimum 5-7 years for optimal returns." }
+    ]
+  },
+  {
+    slug: "equity-mf-small-cap",
+    name: "Equity MF – Small Cap Fund",
+    category: "Equity MF",
+    issuer: "Leading AMCs",
+    rating: "Equity",
+    tenor_days: 0,
+    tenor_label: "Open ended",
+    indicative_yield_min: 14.8,
+    indicative_yield_max: 22.3,
+    min_lot: "₹500",
+    liquidity: "T+3",
+    settlement: "T+3",
+    tax_treatment: "STCG 15% if <1 year; LTCG 10% if >₹1L and >1 year",
+    credit_risk: "Market",
+    risk_notes: "Extremely high volatility; highest risk category in equity.",
+    docs_required: ["PAN", "Entity KYC", "Board Resolution/POA", "Risk Profile Assessment", "Suitability Declaration"],
+    disclosures: [
+      "Small-cap funds are extremely volatile and risky.",
+      "Only for investors with very high risk tolerance.",
+      "Returns shown are historical 3-year CAGR.",
+      "May face liquidity issues during market stress."
+    ],
+    faqs: [
+      { q: "What defines small-cap?", a: "Companies with market cap below ₹5,000 crores." },
+      { q: "Who should invest?", a: "Only sophisticated investors with 7+ year investment horizon." }
+    ]
+  },
+  {
+    slug: "equity-mf-flexi-cap",
+    name: "Equity MF – Flexi Cap Fund",
+    category: "Equity MF",
+    issuer: "Leading AMCs",
+    rating: "Equity",
+    tenor_days: 0,
+    tenor_label: "Open ended",
+    indicative_yield_min: 11.8,
+    indicative_yield_max: 16.2,
+    min_lot: "₹500",
+    liquidity: "T+3",
+    settlement: "T+3",
+    tax_treatment: "STCG 15% if <1 year; LTCG 10% if >₹1L and >1 year",
+    credit_risk: "Market",
+    risk_notes: "Moderate to high volatility; diversified across market caps.",
+    docs_required: ["PAN", "Entity KYC", "Board Resolution/POA", "Risk Profile Assessment"],
+    disclosures: [
+      "Flexi-cap funds invest across market capitalizations.",
+      "Portfolio allocation may change based on market conditions.",
+      "Returns shown are historical 3-year CAGR.",
+      "Balanced approach to equity investing."
+    ],
+    faqs: [
+      { q: "How is allocation decided?", a: "Fund manager has flexibility to invest across large, mid, and small caps." },
+      { q: "Is this suitable for beginners?", a: "Yes, good option for first-time equity investors." }
+    ]
+  },
+  {
+    slug: "equity-mf-sectoral-tech",
+    name: "Equity MF – Technology Sector Fund",
+    category: "Equity MF",
+    issuer: "Leading AMCs",
+    rating: "Equity",
+    tenor_days: 0,
+    tenor_label: "Open ended",
+    indicative_yield_min: 13.5,
+    indicative_yield_max: 25.8,
+    min_lot: "₹500",
+    liquidity: "T+3",
+    settlement: "T+3",
+    tax_treatment: "STCG 15% if <1 year; LTCG 10% if >₹1L and >1 year",
+    credit_risk: "Market",
+    risk_notes: "Very high volatility; concentrated sector risk; cyclical performance.",
+    docs_required: ["PAN", "Entity KYC", "Board Resolution/POA", "Risk Profile Assessment", "Sector Risk Acknowledgment"],
+    disclosures: [
+      "Sectoral funds carry concentrated risk.",
+      "Performance highly correlated to technology sector.",
+      "Returns shown are historical 3-year CAGR.",
+      "May underperform during sector downturns."
+    ],
+    faqs: [
+      { q: "Which companies are included?", a: "IT services, software, hardware, and tech-enabled companies." },
+      { q: "What are the risks?", a: "Sector concentration, global demand dependency, currency risk." }
+    ]
   }
 ];
