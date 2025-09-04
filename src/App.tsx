@@ -16,6 +16,7 @@ import Invest from "./pages/app/Invest";
 import Orders from "./pages/app/Orders";
 import Approvals from "./pages/app/Approvals";
 import Portfolio from "./pages/app/Portfolio";
+import Documentation from "./pages/app/Documentation";
 import Product from "./pages/Product";
 import Instruments from "./pages/Instruments";
 import InstrumentDetail from "./pages/InstrumentDetail";
@@ -132,6 +133,14 @@ const AppContent = () => {
             <RouteGuard>
               <AppLayout>
                 <Portfolio />
+              </AppLayout>
+            </RouteGuard>
+          } />
+          
+          <Route path="/app/documentation" element={
+            <RouteGuard>
+              <AppLayout>
+                <Documentation />
               </AppLayout>
             </RouteGuard>
           } />

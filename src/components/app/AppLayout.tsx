@@ -61,6 +61,7 @@ const AppSidebar = () => {
     { title: "Orders", url: "/app/orders", icon: ShoppingCart },
     { title: "Portfolio", url: "/app/portfolio", icon: PieChart },
     { title: "Reports", url: "/app/reports", icon: FileText },
+    { title: "Documentation", url: "/app/documentation", icon: FileText },
     { title: "Policies", url: "/app/policies", icon: Shield },
     { title: "Settings", url: "/app/settings", icon: Settings },
   ];
