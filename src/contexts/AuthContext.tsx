@@ -52,11 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ isLoginModalOpen, openLoginModal, closeLoginModal, session, login, logout, loading }}>
-      {loading ? (
-        <div style={{padding: 24}}>Loading…</div>
-      ) : (
-        children
-      )}
+      {children}
     </AuthContext.Provider>
   );
 };
