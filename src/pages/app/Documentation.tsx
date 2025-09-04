@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   FileText, 
   Upload, 
@@ -20,7 +21,10 @@ import {
   Shield,
   DollarSign,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  PenTool,
+  FileCheck,
+  UserCheck
 } from "lucide-react";
 
 interface DocumentEntry {
@@ -109,6 +113,17 @@ const Documentation = () => {
     description: '',
     status: 'Current'
   });
+
+  // E-Signature State
+  const [signatures, setSignatures] = useState(() => {
+    const stored = localStorage.getItem('company_signatures_v1');
+    return stored ? JSON.parse(stored) : [];
+  });
+  
+  const [currentSignature, setCurrentSignature] = useState('');
+  const [signatureModalOpen, setSignatureModalOpen] = useState(false);
+  const [selectedDocumentForSigning, setSelectedDocumentForSigning] = useState<string | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   const saveDocuments = (docs: DocumentEntry[]) => {
     localStorage.setItem('company_documentation_v1', JSON.stringify(docs));
@@ -200,6 +215,52 @@ const Documentation = () => {
       month: 'short',
       year: 'numeric'
     });
+  };
+
+  // E-Signature Functions
+  const handleSignDocument = (documentId: string) => {
+    const document = documents.find(doc => doc.id === documentId);
+    if (!document) return;
+
+    const signature = {
+      id: Date.now().toString(),
+      documentId,
+      documentTitle: document.title,
+      signedBy: session?.name || 'Unknown User',
+      signedAt: new Date().toISOString(),
+      signature: currentSignature || 'Digital Signature',
+      ipAddress: '192.168.1.1', // Mock IP
+      userAgent: 'Mock Browser'
+    };
+
+    const updatedSignatures = [...signatures, signature];
+    setSignatures(updatedSignatures);
+    localStorage.setItem('company_signatures_v1', JSON.stringify(updatedSignatures));
+    
+    setSignatureModalOpen(false);
+    setSelectedDocumentForSigning(null);
+    setCurrentSignature('');
+
+    toast({
+      title: "Document Signed",
+      description: `${document.title} has been digitally signed`
+    });
+  };
+
+  const clearSignature = () => {
+    setCurrentSignature('');
+  };
+
+  const addSignatureText = (text: string) => {
+    setCurrentSignature(text);
+  };
+
+  const isDocumentSigned = (documentId: string) => {
+    return signatures.some(sig => sig.documentId === documentId);
+  };
+
+  const getDocumentSignatures = (documentId: string) => {
+    return signatures.filter(sig => sig.documentId === documentId);
   };
 
   return (
@@ -323,6 +384,55 @@ const Documentation = () => {
             </CardContent>
           </Card>
 
+          {/* E-Signature Section */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PenTool className="w-5 h-5" />
+                Digital Signature Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold text-text mb-3">Signature Statistics</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {signatures.length}
+                      </div>
+                      <p className="text-sm text-muted">Total Signatures</p>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {documents.filter(doc => isDocumentSigned(doc.id)).length}
+                      </div>
+                      <p className="text-sm text-muted">Signed Documents</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold text-text mb-3">Recent Signatures</h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {signatures.slice(-3).reverse().map((sig) => (
+                      <div key={sig.id} className="flex items-center gap-2 p-2 bg-muted/50 rounded">
+                        <FileCheck className="w-4 h-4 text-green-600" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{sig.documentTitle}</p>
+                          <p className="text-xs text-muted">{formatDate(sig.signedAt)} by {sig.signedBy}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {signatures.length === 0 && (
+                      <p className="text-sm text-muted italic">No signatures yet</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Documents by Category */}
           <div className="space-y-8">
             {Object.entries(documentsByCategory).map(([category, categoryDocs]) => (
@@ -372,6 +482,23 @@ const Documentation = () => {
                             </SelectContent>
                           </Select>
                           
+                          {isDocumentSigned(doc.id) ? (
+                            <Button variant="outline" size="sm" className="bg-green-50 text-green-700">
+                              <FileCheck className="w-4 h-4" />
+                            </Button>
+                          ) : (
+                            <Dialog open={signatureModalOpen && selectedDocumentForSigning === doc.id} onOpenChange={(open) => {
+                              setSignatureModalOpen(open);
+                              if (!open) setSelectedDocumentForSigning(null);
+                            }}>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={() => setSelectedDocumentForSigning(doc.id)}>
+                                  <PenTool className="w-4 h-4" />
+                                </Button>
+                              </DialogTrigger>
+                            </Dialog>
+                          )}
+                          
                           <Button variant="outline" size="sm">
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -417,6 +544,113 @@ const Documentation = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* E-Signature Modal */}
+        {selectedDocumentForSigning && (
+          <Dialog open={signatureModalOpen} onOpenChange={setSignatureModalOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <PenTool className="w-5 h-5" />
+                  Sign Document
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <h4 className="font-medium">Document to Sign:</h4>
+                  <p className="text-sm text-muted">
+                    {documents.find(d => d.id === selectedDocumentForSigning)?.title}
+                  </p>
+                </div>
+
+                {/* Mock Signature Pad */}
+                <div className="space-y-3">
+                  <Label>Digital Signature</Label>
+                  <div className="border border-dashed border-border rounded-lg p-8 text-center bg-background">
+                    {currentSignature ? (
+                      <div className="space-y-2">
+                        <div className="text-lg font-script text-primary">
+                          {currentSignature}
+                        </div>
+                        <p className="text-xs text-muted">Click to edit signature</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <PenTool className="w-8 h-8 mx-auto text-muted" />
+                        <p className="text-sm text-muted">Click below to add your signature</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Signature Input Options */}
+                <div className="space-y-2">
+                  <Label>Type Your Signature</Label>
+                  <Input
+                    placeholder="Enter your full name"
+                    value={currentSignature}
+                    onChange={(e) => setCurrentSignature(e.target.value)}
+                    className="font-script text-lg"
+                  />
+                </div>
+
+                {/* Quick Signature Options */}
+                <div className="space-y-2">
+                  <Label>Quick Options</Label>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => addSignatureText(session?.name || 'Your Name')}
+                    >
+                      Use Full Name
+                    </Button>
+                    <Button
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => addSignatureText('Digitally Signed')}
+                    >
+                      Generic Signature
+                    </Button>
+                    <Button
+                      variant="outline" 
+                      size="sm"
+                      onClick={clearSignature}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setSignatureModalOpen(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={() => handleSignDocument(selectedDocumentForSigning)}
+                    disabled={!currentSignature}
+                    className="flex-1"
+                  >
+                    <FileCheck className="w-4 h-4 mr-2" />
+                    Sign Document
+                  </Button>
+                </div>
+
+                {/* Legal Notice */}
+                <div className="text-xs text-muted bg-muted/30 p-3 rounded">
+                  <p className="font-medium mb-1">Legal Notice:</p>
+                  <p>By signing this document digitally, you acknowledge that this signature has the same legal effect as a handwritten signature.</p>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </>
   );
