@@ -188,69 +188,50 @@ const Onboarding = () => {
     setIsSubmitting(true);
 
     try {
-      // Save entity data
-      const entityId = "urban-threads";
-      const entities = JSON.parse(localStorage.getItem('entities_v1') || '[]');
-      const updatedEntities = entities.filter((e: any) => e.id !== entityId);
-      updatedEntities.push({
-        id: entityId,
-        ...entityData,
-        createdAt: new Date().toISOString()
-      });
-      localStorage.setItem('entities_v1', JSON.stringify(updatedEntities));
+      // 1) Ensure session exists (RouteGuard usually made one, but be safe)
+      const raw = sessionStorage.getItem("auth_session_v1");
+      if (!raw) {
+        sessionStorage.setItem(
+          "auth_session_v1",
+          JSON.stringify({
+            userId: "demo-user",
+            email: "demo@treasury.com",
+            name: "demo",
+            role: "User",
+            entityId: "urban-threads",
+            loginTime: new Date().toISOString(),
+          })
+        );
+      }
+      const sess = JSON.parse(sessionStorage.getItem("auth_session_v1")!);
 
-      // Simulate e-sign completion with proper KYC approval flow
-      console.log('Onboarding: Starting e-sign completion process');
-      
-      // First mark as submitted
-      const kycData = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
-      kycData[entityId] = {
-        status: 'Submitted',
+      // 2) Persist entity + KYC approved
+      const entityId = sess.entityId;
+      const entities = JSON.parse(localStorage.getItem("entities_v1") || "[]");
+      const out = entities.filter((e: any) => e.id !== entityId);
+      out.push({ id: entityId, ...entityData, createdAt: new Date().toISOString() });
+      localStorage.setItem("entities_v1", JSON.stringify(out));
+
+      const kyc = JSON.parse(localStorage.getItem("kyc_v1") || "{}");
+      kyc[entityId] = {
+        status: "Approved",
         entityData,
-        documents: Object.keys(documents).filter(key => documents[key as keyof DocumentData] !== null),
-        ubos: ubos.filter(ubo => ubo.name && ubo.panLast4),
+        documents: Object.keys(documents).filter((k) => (documents as any)[k]),
+        ubos: ubos.filter((u) => u.name && u.panLast4),
         roleAssignments,
         submittedAt: new Date().toISOString(),
-        ts: Date.now()
+        approvedAt: new Date().toISOString(),
       };
-      localStorage.setItem('kyc_v1', JSON.stringify(kycData));
-      console.log('Onboarding: KYC marked as Submitted');
-      
-      // Show intermediate toast
+      localStorage.setItem("kyc_v1", JSON.stringify(kyc));
+      localStorage.removeItem("onboarding_progress_v1");
+
       toast({
-        title: "Documents Submitted",
-        description: "Processing KYC approval..."
+        title: "KYC Approved!",
+        description: "Welcome to YourCo Treasury"
       });
-      
-      // Simulate approval process after short delay
-      setTimeout(() => {
-        const kycUpdate = JSON.parse(localStorage.getItem('kyc_v1') || '{}');
-        kycUpdate[entityId] = {
-          ...kycUpdate[entityId],
-          status: 'Approved',
-          approvedAt: new Date().toISOString(),
-          ts: Date.now()
-        };
-        localStorage.setItem('kyc_v1', JSON.stringify(kycUpdate));
-        
-        // Clear onboarding progress
-        localStorage.removeItem('onboarding_progress_v1');
-        
-        console.log('Onboarding: KYC approved, navigating to dashboard');
-        
-        toast({
-          title: "KYC Approved!",
-          description: "Welcome to YourCo Treasury"
-        });
-        
-        navigate('/app/dashboard', { replace: true });
-      }, 800);
-      
-      // Failsafe navigation
-      setTimeout(() => {
-        console.log('Onboarding: Failsafe navigation triggered');
-        navigate('/app/dashboard', { replace: true });
-      }, 5000);
+
+      // 3) Go to dashboard
+      navigate("/app/dashboard", { replace: true });
       
     } catch (error) {
       console.error('Onboarding: Error during submission:', error);

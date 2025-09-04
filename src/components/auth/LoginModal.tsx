@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { X } from "lucide-react";
 
 interface LoginModalProps {
@@ -19,11 +20,47 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { login } = useAuth();
 
   // Demo users
   const demoUsers = {
-    "cfo@demo.in": { name: "CFO Demo", role: "Owner/Approver", entityId: "urban-threads" },
-    "ops@demo.in": { name: "Ops Demo", role: "Preparer", entityId: "urban-threads" }
+    "cfo@demo.in": { name: "CFO Demo", role: "Owner" as const, entityId: "urban-threads" },
+    "ops@demo.in": { name: "Ops Demo", role: "Preparer" as const, entityId: "urban-threads" }
+  };
+
+  const handleEmailLogin = (email: string) => {
+    const user = demoUsers[email as keyof typeof demoUsers] || {
+      name: email.split("@")[0],
+      role: "User" as const,
+      entityId: "urban-threads",
+    };
+    login({
+      userId: Math.random().toString(36).slice(2, 10),
+      email,
+      name: user.name,
+      role: user.role,
+      entityId: user.entityId,
+    });
+    toast({ title: "Logged in", description: `Welcome, ${user.name}` });
+    
+    // Store demo users in localStorage for compatibility
+    const existingUsers = JSON.parse(localStorage.getItem('users_v1') || '[]');
+    const updatedUsers = [...existingUsers];
+    
+    Object.entries(demoUsers).forEach(([userEmail, userData]) => {
+      if (!updatedUsers.find(u => u.email === userEmail)) {
+        updatedUsers.push({
+          id: userData.entityId + '-' + userData.role.toLowerCase(),
+          email: userEmail,
+          ...userData
+        });
+      }
+    });
+    
+    localStorage.setItem('users_v1', JSON.stringify(updatedUsers));
+    
+    // Redirect to app
+    window.location.href = '/app';
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -38,66 +75,13 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       return;
     }
 
-      console.log('LoginModal: Starting login process');
-      setIsLoading(true);
-
-      // Simulate API call
-      setTimeout(() => {
-        console.log('LoginModal: Login successful, creating session');
-        const user = demoUsers[email as keyof typeof demoUsers] || {
-          name: email.split('@')[0],
-          role: "User",
-          entityId: "demo-entity"
-        };
-
-        const sessionData = {
-          userId: Math.random().toString(36).substr(2, 9),
-          email,
-          name: user.name,
-          role: user.role,
-          entityId: user.entityId,
-          loginTime: new Date().toISOString()
-        };
-
-        console.log('LoginModal: Session data created:', sessionData);
-
-        // Store session
-        sessionStorage.setItem('auth_session_v1', JSON.stringify(sessionData));
-        console.log('LoginModal: Session stored in sessionStorage');
-        
-        if (rememberMe) {
-          localStorage.setItem('remember_user', email);
-          console.log('LoginModal: Remember me enabled');
-        }
-
-        // Store demo users in localStorage
-        const existingUsers = JSON.parse(localStorage.getItem('users_v1') || '[]');
-        const updatedUsers = [...existingUsers];
-        
-        Object.entries(demoUsers).forEach(([userEmail, userData]) => {
-          if (!updatedUsers.find(u => u.email === userEmail)) {
-            updatedUsers.push({
-              email: userEmail,
-              ...userData
-            });
-          }
-        });
-        
-        localStorage.setItem('users_v1', JSON.stringify(updatedUsers));
-        console.log('LoginModal: Demo users stored');
-
-        toast({
-          title: "Login Successful",
-          description: `Welcome back, ${user.name}!`
-        });
-
-        setIsLoading(false);
-        onClose();
-        
-        console.log('LoginModal: About to redirect to /app');
-        // Use React Router navigation instead of window.location
-        window.location.href = '/app';
-      }, 1000);
+    setIsLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      handleEmailLogin(email);
+      setIsLoading(false);
+    }, 1000);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -116,29 +100,8 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
 
     // Simulate API call
     setTimeout(() => {
-      const sessionData = {
-        userId: Math.random().toString(36).substr(2, 9),
-        email,
-        name: email.split('@')[0],
-        role: "User",
-        entityId: "demo-entity",
-        loginTime: new Date().toISOString()
-      };
-
-      sessionStorage.setItem('auth_session_v1', JSON.stringify(sessionData));
-      
-      toast({
-        title: "Account Created",
-        description: "Welcome! Your account has been created successfully."
-      });
-
+      handleEmailLogin(email);
       setIsLoading(false);
-      onClose();
-      
-      // Redirect to app
-      setTimeout(() => {
-        window.location.href = '/app';
-      }, 100);
     }, 1000);
   };
 

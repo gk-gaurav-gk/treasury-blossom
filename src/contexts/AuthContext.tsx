@@ -1,55 +1,57 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getSession, setSession, clearSession, type Session } from '@/utils/auth';
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-interface AuthContextType {
+export type Session = {
+  userId: string;
+  email: string;
+  name: string;
+  role: "Owner" | "Approver" | "Preparer" | "Auditor" | "User";
+  entityId: string;
+  loginTime: string;
+};
+
+type AuthContextType = {
   isLoginModalOpen: boolean;
   openLoginModal: () => void;
   closeLoginModal: () => void;
   session: Session | null;
-  setAuthSession: (s: Session | null, persist?: boolean) => void;
+  login: (s: Omit<Session, "loginTime">) => void;
+  logout: () => void;
   loading: boolean;
-}
+};
 
+const KEY = "auth_session_v1";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [session, setSessionState] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(KEY);
+      if (raw) setSession(JSON.parse(raw));
+    } catch {}
+    setLoading(false);
+  }, []);
 
   const openLoginModal = () => setIsLoginModalOpen(true);
   const closeLoginModal = () => setIsLoginModalOpen(false);
 
-  // Hydrate session on mount (Remember me support)
-  useEffect(() => {
-    try {
-      const s = getSession();
-      if (s) setSessionState(s);
-    } catch (error) {
-      console.error('Error hydrating session:', error);
-    }
-    setLoading(false);
-  }, []);
+  const login = (s: Omit<Session, "loginTime">) => {
+    const val: Session = { ...s, loginTime: new Date().toISOString() };
+    sessionStorage.setItem(KEY, JSON.stringify(val));
+    setSession(val);
+    setIsLoginModalOpen(false);
+  };
 
-  const setAuthSession = (s: Session | null, persist?: boolean) => {
-    if (!s) {
-      clearSession();
-      setSessionState(null);
-      return;
-    }
-    setSession(s, { persist });
-    setSessionState(s);
+  const logout = () => {
+    sessionStorage.removeItem(KEY);
+    setSession(null);
   };
 
   return (
-    <AuthContext.Provider value={{
-      isLoginModalOpen,
-      openLoginModal,
-      closeLoginModal,
-      session,
-      setAuthSession,
-      loading
-    }}>
+    <AuthContext.Provider value={{ isLoginModalOpen, openLoginModal, closeLoginModal, session, login, logout, loading }}>
       {loading ? (
         <div style={{padding: 24}}>Loading…</div>
       ) : (
